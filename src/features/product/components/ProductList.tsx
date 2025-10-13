@@ -7,10 +7,8 @@ import Alert from "@mui/material/Alert";
 
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
-import {
-  useGetProductsQuery,
-  type Product,
-} from "@/features/product/productApi";
+import { useGetProductsQuery } from "@/app/apiSlice";
+import { type Product } from "@/features/product/productApi";
 
 export interface ProductListProps {
   pageSize?: number;

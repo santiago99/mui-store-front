@@ -1,0 +1,22 @@
+Back
+
+Add id, title, price and imageUrl to Product model. Add fields to migration
+
+Update database/factories/ProductFactory.php so it can create products with title, price and image
+
+Create resource class ProductResource and use it in ProductController
+
+Update ProductController so it can serve CRUD requests using  ProductResource
+
+Create set of test inside directory 'tests' using Pest. Test should cover CRUD operation in ProductController
+
+Create hierarchical category tree model using  kalnoy/nestedset
+
+Update DB seeder to create two level category tree with 15-20 items
+
+Modify product factory so it category_id to one of already existing leaf categories.
+Cache data in getRandomLeafCategoryId so it fetches categories only once.
+
+
+
+
