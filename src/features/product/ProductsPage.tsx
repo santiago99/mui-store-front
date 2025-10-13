@@ -4,13 +4,19 @@ import Box from "@mui/material/Box";
 
 import ProductList from "@/features/product/components/ProductList";
 
-export default function ProductsPage() {
+export interface ProductsPageProps {
+  categoryId?: string | number;
+}
+
+export default function ProductsPage(props: ProductsPageProps) {
+  const { categoryId } = props;
+
   return (
     <Container sx={{ py: 4 }}>
       <Box sx={{ mb: 2 }}>
         <Typography variant="h5">Каталог</Typography>
       </Box>
-      <ProductList pageSize={12} />
+      <ProductList pageSize={12} categoryId={categoryId} />
     </Container>
   );
 }

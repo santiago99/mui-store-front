@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { Product } from "@/features/product/productApi";
+import type { Category } from "@/features/category/categoryApi";
 
 export interface PaginatedResponseMeta {
   current_page: number;
@@ -16,22 +17,7 @@ export interface PaginatedResponse<T> {
   meta: PaginatedResponseMeta;
 }
 
-export interface Category {
-  id: string | number;
-  name: string;
-  slug: string;
-  description: string | null;
-  is_active: boolean;
-  parent_id: string | number | null;
-  depth: number;
-  full_path: string;
-  has_children: boolean;
-  is_leaf: boolean;
-  products_count: number;
-  children: Category[];
-  created_at: string;
-  updated_at: string;
-}
+
 
 export const apiSlice = createApi({
   reducerPath: "api",
@@ -48,11 +34,11 @@ export const apiSlice = createApi({
   endpoints: (builder) => ({
     getProducts: builder.query<
       PaginatedResponse<Product>,
-      { page?: number; perPage?: number }
+      { page?: number; perPage?: number; category_id?: string | number }
     >({
-      query: ({ page = 1, perPage = 12 } = {}) => ({
+      query: ({ page = 1, perPage = 12, category_id } = {}) => ({
         url: `/products`,
-        params: { page, per_page: perPage },
+        params: { page, per_page: perPage, ...(category_id && { category_id }) },
       }),
       //transformResponse: (response: unknown/* , meta */): PaginatedResponse<Product> => response,
       providesTags: (result) =>
@@ -66,7 +52,7 @@ export const apiSlice = createApi({
             ]
           : [{ type: "Product" as const, id: "PARTIAL-LIST" }],
     }),
-    getCategories: builder.query<Category[], void>({
+    getCategoriesTree: builder.query<Category[], void>({
       query: () => ({
         url: `/categories`,
       }),
@@ -81,4 +67,4 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetProductsQuery, useGetCategoriesQuery } = apiSlice;
+export const { useGetProductsQuery, useGetCategoriesTreeQuery } = apiSlice;

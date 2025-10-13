@@ -12,10 +12,11 @@ import { type Product } from "@/features/product/productApi";
 
 export interface ProductListProps {
   pageSize?: number;
+  categoryId?: string | number;
 }
 
 export default function ProductList(props: ProductListProps) {
-  const { pageSize = 12 } = props;
+  const { pageSize = 12, categoryId } = props;
   const [page, setPage] = React.useState(1);
   const {
     data: products,
@@ -25,6 +26,7 @@ export default function ProductList(props: ProductListProps) {
   } = useGetProductsQuery({
     page,
     perPage: pageSize,
+    category_id: categoryId,
   });
 
   const renderSkeletons = () => (

@@ -1,22 +1,27 @@
-Back
-
-Add id, title, price and imageUrl to Product model. Add fields to migration
-
-Update database/factories/ProductFactory.php so it can create products with title, price and image
-
-Create resource class ProductResource and use it in ProductController
-
-Update ProductController so it can serve CRUD requests using  ProductResource
-
-Create set of test inside directory 'tests' using Pest. Test should cover CRUD operation in ProductController
-
-Create hierarchical category tree model using  kalnoy/nestedset
-
-Update DB seeder to create two level category tree with 15-20 items
-
-Modify product factory so it category_id to one of already existing leaf categories.
-Cache data in getRandomLeafCategoryId so it fetches categories only once.
 
 
+Create list of products using MUI components. List shoul recieve its data from RTK Query API call. List should have pagination. Each component should be in separate file inside directory srs/features/product. Each list should have image, title, price in russian roubles, button "learn more" and button "add to cart".
+
+Add RTKQ endpoint that fetches hierarchical tree data from API with structure:
+'id'
+'name'
+'slug'
+'description'
+'is_active'
+'parent_id'
+'depth'
+'full_path'
+'has_children'
+'is_leaf'
+'products_count'
+'children'
+'created_at'
+'updated_at'
+
+
+
+
+Create Sidebar component inside src/theme/components folder and add it to the srs/theme/layout/DefaultLayout.tsx
+Sidebar should contain MUI responsive drawer that contains category tree list from getCategoriesTree 
 
 
