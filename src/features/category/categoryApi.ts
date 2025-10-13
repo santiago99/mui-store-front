@@ -3,14 +3,14 @@ export interface Category {
   name: string;
   slug: string;
   description: string | null;
-  is_active: boolean;
-  parent_id: string | number | null;
+  isActive: boolean;
+  parentId: string | number | null;
   depth: number;
-  full_path: string;
-  has_children: boolean;
-  is_leaf: boolean;
-  products_count: number;
+  fullPath: string;
+  hasChildren: boolean;
+  isLeaf: boolean;
+  productsCount: number;
   children: Category[];
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }

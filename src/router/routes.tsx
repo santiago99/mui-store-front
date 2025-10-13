@@ -3,7 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { Frontpage } from "@/features/frontpage/Frontpage";
 import DefaultLayout from "@/theme/layouts/DefaultLayout";
-import ProductsPage from "@/features/product/ProductsPage";
+import CategoryPage from "@/features/category/CategoryPage";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -24,9 +24,13 @@ export const router = createBrowserRouter([
         path: "",
         element: <Frontpage />,
       },
+      // {
+      //   path: "products",
+      //   element: <ProductsPage />,
+      // },
       {
-        path: "products",
-        element: <ProductsPage />,
+        path: "category/:categoryId",
+        element: <CategoryPage />,
       },
       /* {
         path: "cart",

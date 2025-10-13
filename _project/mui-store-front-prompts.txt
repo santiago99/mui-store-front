@@ -7,19 +7,19 @@ Add RTKQ endpoint that fetches hierarchical tree data from API with structure:
 'name'
 'slug'
 'description'
-'is_active'
-'parent_id'
+'isActive'
+'parentId'
 'depth'
-'full_path'
+'fullPath'
 'has_children'
-'is_leaf'
-'products_count'
+'isLeaf'
+'productsCount'
 'children'
-'created_at'
-'updated_at'
+'createdAt'
+'updatedAt'
 
 
-
+Add caregory_id param to getProducts use category ID as optional parameter in ProductsList
 
 Create Sidebar component inside src/theme/components folder and add it to the srs/theme/layout/DefaultLayout.tsx
 Sidebar should contain MUI responsive drawer that contains category tree list from getCategoriesTree 
