@@ -1,20 +1,13 @@
-// import React from "react";
+import * as React from "react";
 import { Outlet } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
 import type {} from "@mui/material/themeCssVarsAugmentation";
-import Stack from "@mui/material/Stack";
-// import { styled, alpha } from "@mui/material/styles";
 import AppTheme from "@/theme/AppTheme";
 import Box from "@mui/material/Box";
-// import Typography from "@mui/material/Typography";
-// import Toolbar from "@mui/material/Toolbar";
-// import Breadcrumbs, { breadcrumbsClasses } from "@mui/material/Breadcrumbs";
-// import NavigateNextRoundedIcon from "@mui/icons-material/NavigateNextRounded";
+import Toolbar from "@mui/material/Toolbar";
 
-// import Sidebar from '@/theme/components/sidebar/Sidebar'
-// import Navbar from '@/theme/components/Navbar/Navbar'
-
-import { layoutMath } from "@/theme/themePrimitives";
+import Sidebar from "@/theme/components/Sidebar";
+import Navbar from "@/theme/components/Navbar";
 
 // const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
 //   margin: theme.spacing(1, 0),
@@ -26,49 +19,49 @@ import { layoutMath } from "@/theme/themePrimitives";
 //     alignItems: 'center',
 //   },
 // }))
+const drawerWidth = 280;
 
-export default function DefaultLayout(/* props: {
-  children: React.ReactNode
-} */) {
+export default function DefaultLayout() {
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  const handleDrawerToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleDrawerClose = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />
-      <Stack
-        spacing={0}
-        sx={() => ({
-          alignItems: "stretch",
-          minHeight: "100vh",
-          // mx: 3,
-          // pb: 0,
-          // mt: { xs: 8, md: 0 },
-        })}
-      >
-        {/* <Navbar /> */}
-        <Box>
-          {/* <Sidebar /> */}
-          {/* Main content */}
+      <Box sx={{ display: "flex" }}>
+        <Navbar
+          /* drawerWidth={drawerWidth} */ onMenuClick={handleDrawerToggle}
+        />
+
+        <Sidebar open={sidebarOpen} onClose={handleDrawerClose} />
+
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+          }}
+        >
+          <Toolbar />
           <Box
-            component="main"
             sx={{
-              // flexGrow: 1,
-              marginLeft: layoutMath.sidebarWidth + "px",
-              backgroundColor: "transparent",
-              overflow: "auto",
+              width: "100%",
+              maxWidth: { sm: "100%", md: "1700px" },
+              mx: "auto",
+              px: 2,
             }}
           >
-            {/* <Toolbar /> */}
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: { sm: "100%", md: "1700px" },
-              }}
-            >
-              {/* {props.children} */}
-              <Outlet />
-            </Box>
+            <Outlet />
           </Box>
         </Box>
-      </Stack>
+      </Box>
     </AppTheme>
   );
 }

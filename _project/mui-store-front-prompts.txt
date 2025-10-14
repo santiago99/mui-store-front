@@ -21,7 +21,12 @@ Add RTKQ endpoint that fetches hierarchical tree data from API with structure:
 
 Add caregory_id param to getProducts use category ID as optional parameter in ProductsList
 
+Create route in createBrowserRouter for products list filtered by category. Categroy page SHOULD use component ProductsList 
+
+[ @mui/icons-material should be installed]
 Create Sidebar component inside src/theme/components folder and add it to the srs/theme/layout/DefaultLayout.tsx
-Sidebar should contain MUI responsive drawer that contains category tree list from getCategoriesTree 
+Sidebar should contain MUI responsive drawer that contains category tree list from getCategoriesTree with links to category page.
+
+Move AppBar from DefaultLayout to separate components inside src/theme/components
 
 

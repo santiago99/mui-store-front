@@ -17,7 +17,9 @@ export interface PaginatedResponse<T> {
   meta: PaginatedResponseMeta;
 }
 
-
+export interface DataResponse<T> {
+  data: T[];
+}
 
 export const apiSlice = createApi({
   reducerPath: "api",
@@ -38,7 +40,11 @@ export const apiSlice = createApi({
     >({
       query: ({ page = 1, perPage = 12, category_id } = {}) => ({
         url: `/products`,
-        params: { page, per_page: perPage, ...(category_id && { category_id }) },
+        params: {
+          page,
+          per_page: perPage,
+          ...(category_id && { category_id }),
+        },
       }),
       //transformResponse: (response: unknown/* , meta */): PaginatedResponse<Product> => response,
       providesTags: (result) =>
@@ -56,10 +62,15 @@ export const apiSlice = createApi({
       query: () => ({
         url: `/categories`,
       }),
+      transformResponse: (response: unknown): Category[] =>
+        (response as DataResponse<Category>).data,
       providesTags: (result) =>
         result
           ? [
-              ...result.map((c) => ({ type: "Category" as const, id: c.id })),
+              ...result.map((c) => ({
+                type: "Category" as const,
+                id: c.id,
+              })),
               { type: "Category" as const, id: "TREE" },
             ]
           : [{ type: "Category" as const, id: "TREE" }],
