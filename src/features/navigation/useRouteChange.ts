@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation, matchPath } from "react-router-dom";
 import { useDispatch } from "react-redux";
-//import { setPath } from "../store/navigationSlice";
+import { setPath, type NavigationState } from "./navigationSlice";
 //import { fetchCategoryById } from "../store/categoriesSlice";
 //import { fetchProductById, clearProduct } from "../store/productsSlice";
 
@@ -18,25 +18,24 @@ export function useRouteChange() {
 
     const categoryMatch = matchPath("/category/:categoryId", location.pathname);
 
-    //if (productMatch) {
-    //const { categoryId, productId } = productMatch.params;
-    // dispatch(
-    //   fetchProductById({ categoryId: categoryId!, productId: productId! })
-    // );
+    const navData: NavigationState = {
+      currentPath: location.pathname,
+      route: "default",
+      data: {},
+    };
+
     if (categoryMatch) {
       const { categoryId } = categoryMatch.params;
-      console.log({
-        type: "category",
-        id: categoryId,
-      });
-      //dispatch(fetchCategoryById(categoryId!));
-      //dispatch(clearProduct());
-    } else {
-      console.log({
-        type: "front",
-        id: null,
-      });
-      //dispatch(clearProduct());
+      const categoryIdNumber = parseInt(categoryId!, 10);
+
+      if (!isNaN(categoryIdNumber)) {
+        navData.route = "category";
+        navData.data = {
+          categoryId: categoryIdNumber,
+        };
+      }
     }
+
+    dispatch(setPath(navData));
   }, [location, dispatch]);
 }

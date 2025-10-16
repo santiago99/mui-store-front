@@ -1,15 +1,15 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/app/store";
 
-interface NavigationState {
+export interface NavigationState {
   currentPath: string;
-  route: "category" | "product" | "frontpage" | "cart";
+  route: "category" | "product" | "default" | "cart";
   data: { [k: string]: string | number };
 }
 
 const initialState: NavigationState = {
   currentPath: "/",
-  route: "frontpage",
+  route: "default",
   data: {},
 };
 
