@@ -53,9 +53,12 @@ export default function ProductList(props: ProductListProps) {
 
   return (
     <Stack spacing={3}>
-      {/* <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-        <li>IS FETCHING: {isFetching ? "YES" : "NO"}</li>
-        <li>TOTAL PAGES: {products?.meta.last_page}</li>
+      {/* <Box sx={{ display: "flex", justifyContent: "flexStart", py: 2 }}>
+        <ul>
+          <li>IS FETCHING: {isFetching ? "YES" : "NO"}</li>
+          <li>TOTAL PAGES: {products?.meta.last_page}</li>
+          <li>CATEGORY: {categoryId}</li>
+        </ul>
       </Box> */}
       {isFetching ? (
         renderSkeletons()
