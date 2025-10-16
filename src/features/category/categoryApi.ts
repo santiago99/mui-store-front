@@ -7,7 +7,7 @@ export interface Category {
   parentId: string | number | null;
   depth: number;
   fullPath: string;
-  hasChildren: boolean;
+  //hasChildren: boolean;
   isLeaf: boolean;
   productsCount: number;
   children: Category[];
