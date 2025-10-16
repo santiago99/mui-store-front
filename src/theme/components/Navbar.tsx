@@ -1,8 +1,9 @@
-import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
+import { Link as RouterLink } from "react-router-dom";
+import Link from "@mui/material/Link";
 
 interface NavbarProps {
   // drawerWidth: number;
@@ -31,9 +32,16 @@ export default function Navbar({
         >
           ☰
         </IconButton>
-        <Typography variant="h6" noWrap component="div">
-          MUI Store
-        </Typography>
+        <Link component={RouterLink} to="/">
+          <Typography
+            variant="h6"
+            noWrap
+            component="span"
+            sx={{ color: "white" }}
+          >
+            MUI Store
+          </Typography>
+        </Link>
       </Toolbar>
     </AppBar>
   );
