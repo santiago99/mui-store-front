@@ -16,9 +16,12 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@mui/material/Link";
 
-import { useGetCategoriesTreeQuery } from "@/app/apiSlice";
+import {
+  useGetCategoriesTreeQuery /* , useGetCategoryQuery  */,
+} from "@/app/apiSlice";
 import type { Category } from "@/features/category/categoryApi";
 import { Toolbar } from "@mui/material";
+import { useAppSelector } from "@/app/hooks";
 
 const drawerWidth = 280;
 
@@ -31,15 +34,49 @@ interface CategoryTreeItemProps {
   category: Category;
   level: number;
   onClose: () => void;
+  currentCategoryId?: string | number | null;
 }
 
-function CategoryTreeItem({ category, level, onClose }: CategoryTreeItemProps) {
+function CategoryTreeItem({
+  category,
+  level,
+  onClose,
+  currentCategoryId,
+}: CategoryTreeItemProps) {
   const [open, setOpen] = React.useState(false);
-  const hasChildren = category.children && category.children.length > 0;
+  const isLeaf = category.isLeaf;
+  const isActive =
+    currentCategoryId &&
+    currentCategoryId.toString() === category.id.toString();
 
   const handleClick = () => {
-    if (hasChildren) {
+    if (!isLeaf) {
       setOpen(!open);
+    }
+  };
+
+  const renderCategoryContent = () => {
+    if (isLeaf) {
+      // Leaf categories have links
+      return (
+        <Link
+          component={RouterLink}
+          to={`/category/${category.id}`}
+          onClick={onClose}
+          sx={{
+            textDecoration: "none",
+            color: "inherit",
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}
+        >
+          {category.name}
+        </Link>
+      );
+    } else {
+      // Non-leaf categories are just text (no link)
+      return category.name;
     }
   };
 
@@ -51,25 +88,14 @@ function CategoryTreeItem({ category, level, onClose }: CategoryTreeItemProps) {
           sx={{
             pl: 2 + level * 2,
             py: 0.5,
+            backgroundColor: isActive ? "action.selected" : "transparent",
+            "&:hover": {
+              backgroundColor: isActive ? "action.selected" : "action.hover",
+            },
           }}
         >
           <ListItemText
-            primary={
-              <Link
-                component={RouterLink}
-                to={`/category/${category.id}`}
-                onClick={onClose}
-                sx={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  "&:hover": {
-                    textDecoration: "underline",
-                  },
-                }}
-              >
-                {category.name}
-              </Link>
-            }
+            primary={renderCategoryContent()}
             secondary={
               category.productsCount > 0 ? (
                 <Typography variant="caption" color="text.secondary">
@@ -78,10 +104,10 @@ function CategoryTreeItem({ category, level, onClose }: CategoryTreeItemProps) {
               ) : null
             }
           />
-          {hasChildren && (open ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
+          {!isLeaf && (open ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
         </ListItemButton>
       </ListItem>
-      {hasChildren && (
+      {!isLeaf && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {category.children.map((child: Category) => (
@@ -90,6 +116,7 @@ function CategoryTreeItem({ category, level, onClose }: CategoryTreeItemProps) {
                 category={child}
                 level={level + 1}
                 onClose={onClose}
+                currentCategoryId={currentCategoryId}
               />
             ))}
           </List>
@@ -102,6 +129,17 @@ function CategoryTreeItem({ category, level, onClose }: CategoryTreeItemProps) {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const theme = useTheme();
   const { data: categories, isLoading, isError } = useGetCategoriesTreeQuery();
+  const navigation = useAppSelector((state) => state.navigation);
+
+  let currentCategoryId = null;
+
+  if (navigation.route === "category") {
+    currentCategoryId = navigation.data.categoryId as number;
+  }
+  // Get current category data if we're on a category page
+  // useGetCategoryQuery(currentCategoryId!, {
+  //   skip: !currentCategoryId,
+  // });
 
   const drawer = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -148,6 +186,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 category={category}
                 level={0}
                 onClose={onClose}
+                currentCategoryId={currentCategoryId}
               />
             ))}
           </List>
