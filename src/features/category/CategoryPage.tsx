@@ -15,9 +15,7 @@ export default function CategoryPage(/* props: CategoryPageProps */) {
   const { categoryId } = useParams();
   //const { categoryId } = props;
   const categoryIdNumber = parseInt(categoryId!, 10);
-  const { data: category, isLoading
-
-  } = useGetCategoryQuery(categoryIdNumber);
+  const { data: category, isLoading } = useGetCategoryQuery(categoryIdNumber);
 
   console.log({
     categoryId,
@@ -30,9 +28,11 @@ export default function CategoryPage(/* props: CategoryPageProps */) {
     <Container sx={{ py: 4 }}>
       <Box sx={{ mb: 2 }}>
         <Typography variant="h5">
-          {isLoading ?
+          {isLoading ? (
             <Skeleton variant="text" width="100%" height={24} />
-            : category?.name} 111
+          ) : (
+            category?.name
+          )}
         </Typography>
       </Box>
       <ProductList pageSize={12} categoryId={categoryId} />
