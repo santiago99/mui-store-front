@@ -8,6 +8,7 @@ import Toolbar from "@mui/material/Toolbar";
 
 import Sidebar from "@/theme/components/Sidebar";
 import Navbar from "@/theme/components/Navbar";
+import { useRouteChange } from "@/features/navigation/useRouteChange";
 
 // const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
 //   margin: theme.spacing(1, 0),
@@ -22,6 +23,8 @@ import Navbar from "@/theme/components/Navbar";
 const drawerWidth = 280;
 
 export default function DefaultLayout() {
+  useRouteChange();
+
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   const handleDrawerToggle = () => {
