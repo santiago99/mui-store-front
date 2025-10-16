@@ -23,3 +23,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+_local/
+_project/React+Redux+Router+SSR.html
+_project/React+Redux+Router+SSR_files/
