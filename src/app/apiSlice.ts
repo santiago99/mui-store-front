@@ -17,7 +17,10 @@ export interface PaginatedResponse<T> {
   meta: PaginatedResponseMeta;
 }
 
-export interface DataResponse<T> {
+export interface SingleDataResponse<T> {
+  data: T;
+}
+export interface ListDataResponse<T> {
   data: T[];
 }
 
@@ -58,12 +61,21 @@ export const apiSlice = createApi({
             ]
           : [{ type: "Product" as const, id: "PARTIAL-LIST" }],
     }),
+    getCategory: builder.query<Category, number>({
+      query: (id) => ({
+        url: `/categories/${id}`,
+      }),
+      transformResponse: (response: unknown): Category =>
+        (response as SingleDataResponse<Category>).data,
+      providesTags: (result) =>
+        result ? [{ type: "Category" as const, id: result.id }] : [],
+    }),
     getCategoriesTree: builder.query<Category[], void>({
       query: () => ({
         url: `/categories`,
       }),
       transformResponse: (response: unknown): Category[] =>
-        (response as DataResponse<Category>).data,
+        (response as ListDataResponse<Category>).data,
       providesTags: (result) =>
         result
           ? [
@@ -78,4 +90,4 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetProductsQuery, useGetCategoriesTreeQuery } = apiSlice;
+export const { useGetProductsQuery, useGetCategoriesTreeQuery, useGetCategoryQuery } = apiSlice;
