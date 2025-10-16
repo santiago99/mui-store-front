@@ -4,6 +4,7 @@ import { LoginPage } from "@/features/auth/LoginPage";
 import { Frontpage } from "@/features/frontpage/Frontpage";
 import DefaultLayout from "@/theme/layouts/DefaultLayout";
 import CategoryPage from "@/features/category/CategoryPage";
+// import { categoryPreloader } from "@/features/category/categoryPreloader";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       {
         path: "category/:categoryId",
         element: <CategoryPage />,
+        //loader: categoryPreloader,
       },
       /* {
         path: "cart",
