@@ -14,10 +14,11 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link as RouterLink } from "react-router-dom";
-import Link from "@mui/material/Link";
+//import Link from "@mui/material/Link";
 
 import {
-  useGetCategoriesTreeQuery /* , useGetCategoryQuery  */,
+  useGetCategoriesTreeQuery, /* , useGetCategoryQuery  */
+  useGetCategoryQuery,
 } from "@/app/apiSlice";
 import type { Category } from "@/features/category/categoryApi";
 import { Toolbar } from "@mui/material";
@@ -35,6 +36,7 @@ interface CategoryTreeItemProps {
   level: number;
   onClose: () => void;
   currentCategoryId?: string | number | null;
+  currentCategoryAncestors?: Array<{ id: string | number }>;
 }
 
 function CategoryTreeItem({
@@ -42,12 +44,24 @@ function CategoryTreeItem({
   level,
   onClose,
   currentCategoryId,
+  currentCategoryAncestors,
 }: CategoryTreeItemProps) {
-  const [open, setOpen] = React.useState(false);
   const isLeaf = category.isLeaf;
   const isActive =
     currentCategoryId &&
     currentCategoryId.toString() === category.id.toString();
+
+  // Check if this category should be expanded based on ancestors
+  const shouldBeExpanded = currentCategoryAncestors?.some(
+    ancestor => ancestor.id.toString() === category.id.toString()
+  ) || false;
+
+  const [open, setOpen] = React.useState(shouldBeExpanded);
+
+  // Update open state when ancestors change
+  React.useEffect(() => {
+    setOpen(shouldBeExpanded);
+  }, [shouldBeExpanded]);
 
   const handleClick = () => {
     if (!isLeaf) {
@@ -55,30 +69,15 @@ function CategoryTreeItem({
     }
   };
 
-  const renderCategoryContent = () => {
-    if (isLeaf) {
-      // Leaf categories have links
-      return (
-        <Link
-          component={RouterLink}
-          to={`/category/${category.id}`}
-          onClick={onClose}
-          sx={{
-            textDecoration: "none",
-            color: "inherit",
-            "&:hover": {
-              textDecoration: "underline",
-            },
-          }}
-        >
-          {category.name}
-        </Link>
-      );
-    } else {
-      // Non-leaf categories are just text (no link)
-      return category.name;
-    }
-  };
+
+  const linkProps: { [key: string]: any } = {}
+  if (isLeaf) {
+    linkProps.to = `/category/${category.id}`;
+    linkProps.onClick = onClose;
+    linkProps.component = RouterLink;
+  } else {
+    linkProps.onClick = handleClick;
+  }
 
   return (
     <>
@@ -93,11 +92,12 @@ function CategoryTreeItem({
               backgroundColor: isActive ? "action.selected" : "action.hover",
             },
           }}
+          {...linkProps}
         >
           <ListItemText
-            primary={renderCategoryContent()}
+            primary={category.name}
             secondary={
-              category.productsCount > 0 ? (
+              category.productsCount && category.productsCount > 0 ? (
                 <Typography variant="caption" color="text.secondary">
                   {category.productsCount} товаров
                 </Typography>
@@ -110,13 +110,14 @@ function CategoryTreeItem({
       {!isLeaf && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            {category.children.map((child: Category) => (
+            {category.children!.map((child: Category) => (
               <CategoryTreeItem
                 key={child.id}
                 category={child}
                 level={level + 1}
                 onClose={onClose}
                 currentCategoryId={currentCategoryId}
+                currentCategoryAncestors={currentCategoryAncestors}
               />
             ))}
           </List>
@@ -135,11 +136,16 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   if (navigation.route === "category") {
     currentCategoryId = navigation.data.categoryId as number;
+  } else if (navigation.route === "product") {
+    currentCategoryId = navigation.data.productId as number;
   }
   // Get current category data if we're on a category page
-  // useGetCategoryQuery(currentCategoryId!, {
-  //   skip: !currentCategoryId,
-  // });
+  const { data: currentCategory } = useGetCategoryQuery(currentCategoryId!, {
+    skip: !currentCategoryId,
+  });
+
+  // Extract ancestors for auto-expansion
+  const currentCategoryAncestors = currentCategory?.ancestors || [];
 
   const drawer = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -187,6 +193,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 level={0}
                 onClose={onClose}
                 currentCategoryId={currentCategoryId}
+                currentCategoryAncestors={currentCategoryAncestors}
               />
             ))}
           </List>
