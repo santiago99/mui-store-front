@@ -5,6 +5,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
+import { Link as RouterLink } from "react-router-dom";
 
 import type { Product } from "@/features/product/productApi";
 
@@ -18,12 +19,11 @@ function formatPriceRub(price: number): string {
 
 export interface ProductCardProps {
   product: Product;
-  onLearnMore?: (product: Product) => void;
   onAddToCart?: (product: Product) => void;
 }
 
 export default function ProductCard(props: ProductCardProps) {
-  const { product, onLearnMore, onAddToCart } = props;
+  const { product, onAddToCart } = props;
 
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -51,7 +51,8 @@ export default function ProductCard(props: ProductCardProps) {
         <Button
           size="small"
           variant="outlined"
-          onClick={() => onLearnMore?.(product)}
+          component={RouterLink}
+          to={`/product/${product.id}`}
         >
           Learn more
         </Button>

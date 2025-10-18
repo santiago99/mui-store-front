@@ -61,6 +61,15 @@ export const apiSlice = createApi({
             ]
           : [{ type: "Product" as const, id: "PARTIAL-LIST" }],
     }),
+    getProduct: builder.query<Product, number>({
+      query: (id) => ({
+        url: `/products/${id}`,
+      }),
+      transformResponse: (response: unknown): Product =>
+        (response as SingleDataResponse<Product>).data,
+      providesTags: (result) =>
+        result ? [{ type: "Product" as const, id: result.id }] : [],
+    }),
     getCategory: builder.query<Category, number>({
       query: (id) => ({
         url: `/categories/${id}`,
@@ -90,4 +99,4 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetProductsQuery, useGetCategoriesTreeQuery, useGetCategoryQuery } = apiSlice;
+export const { useGetProductsQuery, useGetProductQuery, useGetCategoriesTreeQuery, useGetCategoryQuery } = apiSlice;
