@@ -17,15 +17,18 @@ import {
 
 import { useAppSelector } from "@/app/hooks";
 import { selectAuthData } from "@/features/auth/authSlice";
-import { useLoginMutation, useLazyGetCurrentUserQuery } from "./authApi";
+import { useRegisterMutation, useLazyGetCurrentUserQuery } from "./authApi";
+
 import { SignInContainer } from "@/theme/components/SignInContainer";
 
-interface LoginPageFormFields extends HTMLFormControlsCollection {
+interface RegisterPageFormFields extends HTMLFormControlsCollection {
+  name: HTMLInputElement;
   email: HTMLInputElement;
   password: HTMLInputElement;
+  password_confirmation: HTMLInputElement;
 }
-interface LoginPageFormElements extends HTMLFormElement {
-  readonly elements: LoginPageFormFields;
+interface RegisterPageFormElements extends HTMLFormElement {
+  readonly elements: RegisterPageFormFields;
 }
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -47,10 +50,10 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-export const LoginPage = () => {
+export const RegisterPage = () => {
   const navigate = useNavigate();
   const { status: authStatus } = useAppSelector(selectAuthData);
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [register, { isLoading, error }] = useRegisterMutation();
   const [getCurrentUser] = useLazyGetCurrentUserQuery();
 
   React.useEffect(() => {
@@ -59,27 +62,30 @@ export const LoginPage = () => {
     }
   }, [authStatus, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent<LoginPageFormElements>) => {
+  const handleSubmit = async (e: React.FormEvent<RegisterPageFormElements>) => {
     e.preventDefault();
 
+    const name = e.currentTarget.elements.name.value;
     const email = e.currentTarget.elements.email.value;
     const password = e.currentTarget.elements.password.value;
+    const password_confirmation =
+      e.currentTarget.elements.password_confirmation.value;
 
     try {
-      await login({ email, password }).unwrap();
-      // After successful login, fetch the current user to populate the auth state
+      await register({ name, email, password, password_confirmation }).unwrap();
+      // After successful registration, fetch the current user to populate the auth state
       await getCurrentUser();
       navigate("/");
     } catch (err) {
       // Error is handled by the mutation hook
-      console.error("Login failed:", err);
+      console.error("Registration failed:", err);
     }
   };
 
   let errorsRender = null;
 
   if (error) {
-    let errorMessage = "An error occurred during login";
+    let errorMessage = "An error occurred during registration";
     if (
       "data" in error &&
       error.data &&
@@ -105,7 +111,7 @@ export const LoginPage = () => {
           variant="h4"
           sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
         >
-          Sign in
+          Sign up
         </Typography>
         <Box
           component="form"
@@ -120,6 +126,21 @@ export const LoginPage = () => {
         >
           {errorsRender}
           <FormControl>
+            <FormLabel htmlFor="name">Full Name</FormLabel>
+            <TextField
+              id="name"
+              type="text"
+              name="name"
+              placeholder="John Doe"
+              autoComplete="name"
+              autoFocus
+              required
+              fullWidth
+              variant="outlined"
+              disabled={isLoading}
+            />
+          </FormControl>
+          <FormControl>
             <FormLabel htmlFor="email">Email</FormLabel>
             <TextField
               id="email"
@@ -127,7 +148,6 @@ export const LoginPage = () => {
               name="email"
               placeholder="your@email.com"
               autoComplete="email"
-              autoFocus
               required
               fullWidth
               variant="outlined"
@@ -141,7 +161,23 @@ export const LoginPage = () => {
               placeholder="••••••"
               type="password"
               id="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
+              required
+              fullWidth
+              variant="outlined"
+              disabled={isLoading}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="password_confirmation">
+              Confirm Password
+            </FormLabel>
+            <TextField
+              name="password_confirmation"
+              placeholder="••••••"
+              type="password"
+              id="password_confirmation"
+              autoComplete="new-password"
               required
               fullWidth
               variant="outlined"
@@ -155,19 +191,11 @@ export const LoginPage = () => {
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? "Creating account..." : "Sign up"}
           </Button>
           <Box sx={{ textAlign: "center", mt: 2 }}>
-            <Link component={RouterLink} to="/user/register" variant="body2">
-              Don't have an account? Sign up
-            </Link>
-            <br />
-            <Link
-              component={RouterLink}
-              to="/user/forgot-password"
-              variant="body2"
-            >
-              Forgot your password?
+            <Link component={RouterLink} to="/user/login" variant="body2">
+              Already have an account? Sign in
             </Link>
           </Box>
         </Box>

@@ -24,18 +24,70 @@ export interface ListDataResponse<T> {
   data: T[];
 }
 
+// Helper function to get cookies
+function getCookie(name: string): string | null {
+  const regex = new RegExp(`(^| )${name}=([^;]+)`);
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const match = decodedCookie.match(regex);
+  return match ? match[2] : null;
+}
+
+// Helper function to fetch CSRF token
+async function fetchCsrfToken(): Promise<void> {
+  try {
+    await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/sanctum/csrf-cookie`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      credentials: "include",
+    });
+  } catch (error) {
+    console.warn("Failed to fetch CSRF token:", error);
+  }
+}
+
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_APP_BACKEND_URL + "/api/v1/",
     credentials: "include",
-    prepareHeaders: (headers) => {
+    prepareHeaders: async (headers, { endpoint }) => {
       headers.set("Content-Type", "application/json");
       headers.set("X-Requested-With", "XMLHttpRequest");
+
+      // For auth endpoints that require CSRF protection, ensure we have a CSRF token
+      const authEndpoints = [
+        "login",
+        "register",
+        "logout",
+        "forgot-password", // ?
+        "reset-password", //?
+        "updateProfile",
+        "updatePassword",
+        "requestPasswordReset",
+        "resetPassword",
+      ];
+      if (
+        authEndpoints.some((authEndpoint) => endpoint.includes(authEndpoint))
+      ) {
+        // Check if we have a CSRF token, if not fetch it
+        let csrfToken = getCookie("XSRF-TOKEN");
+        if (!csrfToken) {
+          await fetchCsrfToken();
+          csrfToken = getCookie("XSRF-TOKEN");
+        }
+
+        if (csrfToken) {
+          headers.set("X-XSRF-TOKEN", decodeURIComponent(csrfToken));
+        }
+      }
+
       return headers;
     },
   }),
-  tagTypes: ["Product", "Category"],
+  tagTypes: ["Product", "Category", "User"],
   endpoints: (builder) => ({
     getProducts: builder.query<
       PaginatedResponse<Product>,
@@ -99,4 +151,9 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetProductsQuery, useGetProductQuery, useGetCategoriesTreeQuery, useGetCategoryQuery } = apiSlice;
+export const {
+  useGetProductsQuery,
+  useGetProductQuery,
+  useGetCategoriesTreeQuery,
+  useGetCategoryQuery,
+} = apiSlice;

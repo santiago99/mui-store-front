@@ -1,6 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import { LoginPage } from "@/features/auth/LoginPage";
+import { RegisterPage } from "@/features/auth/RegisterPage";
+import { ForgotPasswordPage } from "@/features/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "@/features/auth/ResetPasswordPage";
+import { ProfilePage } from "@/features/auth/ProfilePage";
 import { Frontpage } from "@/features/frontpage/Frontpage";
 import DefaultLayout from "@/theme/layouts/DefaultLayout";
 import CategoryPage from "@/features/category/CategoryPage";
@@ -47,6 +51,18 @@ export const router = createBrowserRouter([
         path: "user/login",
         element: <LoginPage />,
       },
+      {
+        path: "user/register",
+        element: <RegisterPage />,
+      },
+      {
+        path: "user/forgot-password",
+        element: <ForgotPasswordPage />,
+      },
+      {
+        path: "user/reset-password",
+        element: <ResetPasswordPage />,
+      },
     ],
   },
   // private routes
@@ -58,21 +74,13 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
+      {
+        path: "profile",
+        element: <ProfilePage />,
+      },
       /* {
         path: "orders",
         element: <Dashboard />,
-      }, */
-      /* {
-        path: "polls",
-        element: <PollsPage />,
-      }, */
-      /* {
-        path: 'news/:newsId"',
-        element: <NewsPage />,
-      },
-      {
-        path: 'pages/:pageId"',
-        element: <StaticPage />,
       }, */
     ],
   },

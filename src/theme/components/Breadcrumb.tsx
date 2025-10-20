@@ -6,25 +6,44 @@ import HomeIcon from "@mui/icons-material/Home";
 import { Link as RouterLink } from "react-router-dom";
 
 import { useAppSelector } from "@/app/hooks";
-import { useGetCategoryQuery } from "@/app/apiSlice";
+import { useGetCategoryQuery, useGetProductQuery } from "@/app/apiSlice";
 import type { CategoryMinimal } from "@/features/category/categoryApi";
 
 export default function Breadcrumb() {
   const navigation = useAppSelector((state) => state.navigation);
 
   let currentCategoryId = null;
+  let currentProductId = null;
+  let currentProduct = null;
+  let currentCategory = null;
+
   if (navigation.route === "category") {
     currentCategoryId = navigation.data.categoryId as number;
   } else if (navigation.route === "product") {
-    currentCategoryId = navigation.data.productId as number;
+    currentProductId = navigation.data.productId as number;
   }
 
-  // Get current category data if we're on a category page
-  const { data: currentCategory } = useGetCategoryQuery(currentCategoryId!, {
+  // Get product data if we're on a product page
+  const { data: product } = useGetProductQuery(currentProductId!, {
+    skip: !currentProductId,
+  });
+
+  // If we have a product, get its category ID
+  if (product) {
+    currentProduct = product;
+    currentCategoryId = product.categoryId as number;
+  }
+
+  // Get current category data if we're on a category page or have a product
+  const { data: category } = useGetCategoryQuery(currentCategoryId!, {
     skip: !currentCategoryId,
   });
 
-  // Don't show breadcrumb on frontpage
+  if (category) {
+    currentCategory = category;
+  }
+
+  // Don't show breadcrumb if we cant get category data
   if (!currentCategoryId || !currentCategory) {
     return null;
   }
@@ -72,10 +91,33 @@ export default function Breadcrumb() {
         </Link>
       ))}
 
-      {/* Current category (not clickable) */}
-      <Typography color="text.primary" sx={{ fontWeight: 500 }}>
-        {currentCategory.name}
-      </Typography>
+      {/* Current category (clickable if on product page) */}
+      {currentProduct ? (
+        <Link
+          component={RouterLink}
+          to={`/category/${currentCategory.id}`}
+          sx={{
+            textDecoration: "none",
+            color: "text.secondary",
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}
+        >
+          {currentCategory.name}
+        </Link>
+      ) : (
+        <Typography color="text.primary" sx={{ fontWeight: 500 }}>
+          {currentCategory.name}
+        </Typography>
+      )}
+
+      {/* Product name (only shown on product page) */}
+      {currentProduct && (
+        <Typography color="text.primary" sx={{ fontWeight: 500 }}>
+          {currentProduct.title}
+        </Typography>
+      )}
     </Breadcrumbs>
   );
 }

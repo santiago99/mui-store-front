@@ -1,108 +1,78 @@
 import type { RootState } from "@/app/store";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
-import { createAppAsyncThunk } from "@/app/withTypes";
-import { client } from "@/app/client";
-//import { apiSlice } from "../api/apiSlice";
+import { authApi } from "./authApi";
+import type { User } from "./authApi";
 
 interface AuthState {
   status: "guest" | "pending" | "authorized" | "rejected";
-  email: string | null;
+  user: User | null;
   errors: object | string | null;
-}
-
-interface AuthCredentials {
-  email: string;
-  password: string;
 }
 
 const initialState: AuthState = {
   status: "guest",
-  email: null,
+  user: null,
   errors: {},
 };
 
-export const login = createAppAsyncThunk(
-  "auth/login",
-  async (credentials: AuthCredentials, { rejectWithValue }) => {
-    //await csrf()
-    try {
-      await client.getXsrfToken(true);
-      await client.post("/login", credentials, {
-        credentials: "include",
-      });
-    } catch (error: unknown) {
-      console.log(error);
-      let errMessage = null;
-      if (typeof error === "string") {
-        errMessage = error;
-      } else if (error instanceof Error) {
-        errMessage = error.message;
-        // } else if (error instanceof Object) {
-        //   errMessage = "data" in error && "errors" in error.data ? error.data.errors : '';
-      }
-      return rejectWithValue(errMessage);
-    }
-
-    return credentials.email;
-  }
-);
-
-export const logout = createAppAsyncThunk("auth/logout", async () => {
-  await client.post("/logout", {});
-});
+// Removed old async thunks - now using RTK Query mutations
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    /* userLoggedIn(state, action: PayloadAction<string>) {
-      state.user = { id: '', name: action.payload, email: '' }
+    setUser(state, action: PayloadAction<User>) {
+      state.user = action.payload;
+      state.status = "authorized";
+      state.errors = null;
     },
-    userLoggedOut(state) {
-      state.user = null
-    }, */
+    clearUser(state) {
+      state.user = null;
+      state.status = "guest";
+      state.errors = null;
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.fulfilled, (state, action) => {
-        state.status = "authorized";
-        state.email = action.payload;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.status = "rejected";
-        state.email = null;
-        state.errors = action.payload as object | string | null;
-      })
-      .addCase(logout.fulfilled, (state) => {
+      // RTK Query matchers for auth API endpoints
+      .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
+        state.user = null;
         state.status = "guest";
-        state.email = null;
-        state.errors = {};
+        state.errors = null;
       })
-      .addCase("api/executeQuery/rejected", (state, action) => {
-        console.log("api/executeQuery/rejected");
-        console.log(action);
-        const a = action as PayloadAction<{ status?: number }>;
-        if (a.payload?.status === 401) {
-          state.status = "guest";
-          state.email = null;
-          state.errors = {};
+      .addMatcher(
+        authApi.endpoints.getCurrentUser.matchFulfilled,
+        (state, action) => {
+          state.user = action.payload;
+          state.status = "authorized";
+          state.errors = null;
         }
-      });
-    // .addMatcher(
-    //   apiSlice.endpoints.getCurrentUser.matchFulfilled,
-    //   (state, action) => {
-    //     state.status = "authorized";
-    //     state.email = action.payload.email;
-    //     state.errors = {};
-    //   }
-    // );
+      )
+      .addMatcher(
+        authApi.endpoints.updateProfile.matchFulfilled,
+        (state, action) => {
+          state.user = action.payload.user;
+        }
+      )
+      // Handle 401 errors for auto-logout
+      .addMatcher(
+        (action) =>
+          action.type.endsWith("/rejected") && action.payload?.status === 401,
+        (state) => {
+          state.status = "guest";
+          state.user = null;
+          state.errors = null;
+        }
+      );
   },
 });
 
-//export const { userLoggedIn, userLoggedOut } = authSlice.actions
+export const { setUser, clearUser } = authSlice.actions;
 
 export const selectAuthData = (state: RootState) => state.auth;
 export const selectAuthState = (state: RootState) => state.auth.status;
+export const selectCurrentUser = (state: RootState) => state.auth.user;
+export const selectIsAuthenticated = (state: RootState) =>
+  state.auth.status === "authorized";
 
 export default authSlice.reducer;
