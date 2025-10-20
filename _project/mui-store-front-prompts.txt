@@ -23,10 +23,24 @@ Add caregory_id param to getProducts use category ID as optional parameter in Pr
 
 Create route in createBrowserRouter for products list filtered by category. Categroy page SHOULD use component ProductsList 
 
+[Manually created hook useRoutChange() to detect current route]
+[Semimanually created getCategoryQuery RTKQ]
+
 [ @mui/icons-material should be installed]
-Create Sidebar component inside src/theme/components folder and add it to the srs/theme/layout/DefaultLayout.tsx
+Create Sidebar component inside src/theme/components folder and add it to the src/theme/layout/DefaultLayout.tsx
 Sidebar should contain MUI responsive drawer that contains category tree list from getCategoriesTree with links to category page.
 
+Update category tree in Sidebar.tsx: non-leaf categories should not have links to category page, but open subtree instead. 
+Use useRoutChange() from @useRouteChange.ts to get active route. If it's category page get category data from useGetCategoryQuery and add "active" class to current category.
+
+Inside @Sidebar.tsx  use currentCategory.ancestors to leave open all categories that contains current category.
+
 Move AppBar from DefaultLayout to separate components inside src/theme/components
+
+[not used right now]
+create Router preloader for category route that uses useGetCategoryQuery to preload category data. The preloader should be located inside src/features/category
+
+
+Create Breadcrumb component inside src/theme/components. Is should detects current category as Sidebar do and displays links to current category's ancestors and to  frontpage
 
 
