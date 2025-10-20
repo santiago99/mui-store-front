@@ -17,7 +17,7 @@ const navigationSlice = createSlice({
   name: "navigation",
   initialState,
   reducers: {
-    setPath: (state, action: PayloadAction<NavigationState>) => {
+    setPath: (_state, action: PayloadAction<NavigationState>) => {
       return action.payload;
     },
   },
