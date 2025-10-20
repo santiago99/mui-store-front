@@ -26,5 +26,7 @@ dist-ssr
 
 
 _local/
+_project/_local
 _project/React+Redux+Router+SSR.html
 _project/React+Redux+Router+SSR_files/
+.cursor/
