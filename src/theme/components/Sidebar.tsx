@@ -17,12 +17,19 @@ import { Link as RouterLink } from "react-router-dom";
 //import Link from "@mui/material/Link";
 
 import {
-  useGetCategoriesTreeQuery, /* , useGetCategoryQuery  */
+  useGetCategoriesTreeQuery /* , useGetCategoryQuery  */,
   useGetCategoryQuery,
+  useGetProductQuery,
 } from "@/app/apiSlice";
 import type { Category } from "@/features/category/categoryApi";
 import { Toolbar } from "@mui/material";
 import { useAppSelector } from "@/app/hooks";
+
+type ListItemLinkProps = {
+  to?: string;
+  onClick?: () => void;
+  component?: typeof RouterLink;
+};
 
 const drawerWidth = 280;
 
@@ -52,9 +59,10 @@ function CategoryTreeItem({
     currentCategoryId.toString() === category.id.toString();
 
   // Check if this category should be expanded based on ancestors
-  const shouldBeExpanded = currentCategoryAncestors?.some(
-    ancestor => ancestor.id.toString() === category.id.toString()
-  ) || false;
+  const shouldBeExpanded =
+    currentCategoryAncestors?.some(
+      (ancestor) => ancestor.id.toString() === category.id.toString()
+    ) || false;
 
   const [open, setOpen] = React.useState(shouldBeExpanded);
 
@@ -69,8 +77,7 @@ function CategoryTreeItem({
     }
   };
 
-
-  const linkProps: { [key: string]: any } = {}
+  const linkProps: ListItemLinkProps = {};
   if (isLeaf) {
     linkProps.to = `/category/${category.id}`;
     linkProps.onClick = onClose;
@@ -133,13 +140,25 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   const navigation = useAppSelector((state) => state.navigation);
 
   let currentCategoryId = null;
+  let currentProductId = null;
 
   if (navigation.route === "category") {
     currentCategoryId = navigation.data.categoryId as number;
   } else if (navigation.route === "product") {
-    currentCategoryId = navigation.data.productId as number;
+    currentProductId = navigation.data.productId as number;
   }
-  // Get current category data if we're on a category page
+
+  // Get product data if we're on a product page
+  const { data: product } = useGetProductQuery(currentProductId!, {
+    skip: !currentProductId,
+  });
+
+  // If we have a product, get its category ID
+  if (product) {
+    currentCategoryId = product.categoryId as number;
+  }
+
+  // Get current category data if we're on a category page or have a product
   const { data: currentCategory } = useGetCategoryQuery(currentCategoryId!, {
     skip: !currentCategoryId,
   });
