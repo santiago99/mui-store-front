@@ -15,9 +15,15 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-import { useAppSelector } from "@/app/hooks";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { selectAuthData } from "@/features/auth/authSlice";
 import { useRegisterMutation, useLazyGetCurrentUserQuery } from "./authApi";
+import {
+  selectLocalCartItems,
+  clearLocalCart,
+} from "@/features/cart/cartSlice";
+import { useMergeCartMutation } from "@/features/cart/cartApi";
+import { formatCartItemsForMerge } from "@/features/cart/cartUtils";
 
 import { SignInContainer } from "@/theme/components/SignInContainer";
 
@@ -52,15 +58,20 @@ const Card = styled(MuiCard)(({ theme }) => ({
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { status: authStatus } = useAppSelector(selectAuthData);
+  const localCartItems = useAppSelector(selectLocalCartItems);
   const [register, { isLoading, error }] = useRegisterMutation();
   const [getCurrentUser] = useLazyGetCurrentUserQuery();
+  const [mergeCart] = useMergeCartMutation();
+  const [hasJustRegistered, setHasJustRegistered] = React.useState(false);
 
   React.useEffect(() => {
-    if (authStatus === "authorized") {
+    // Only redirect if user is authorized and we haven't just completed a registration
+    if (authStatus === "authorized" && !hasJustRegistered) {
       navigate("/");
     }
-  }, [authStatus, navigate]);
+  }, [authStatus, navigate, hasJustRegistered]);
 
   const handleSubmit = async (e: React.FormEvent<RegisterPageFormElements>) => {
     e.preventDefault();
@@ -75,6 +86,22 @@ export const RegisterPage = () => {
       await register({ name, email, password, password_confirmation }).unwrap();
       // After successful registration, fetch the current user to populate the auth state
       await getCurrentUser();
+
+      // Set flag to prevent useEffect from redirecting
+      setHasJustRegistered(true);
+
+      // Automatically merge local cart with server cart (no confirmation needed for new users)
+      if (localCartItems.length > 0) {
+        try {
+          const itemsToMerge = formatCartItemsForMerge(localCartItems);
+          await mergeCart({ items: itemsToMerge }).unwrap();
+          dispatch(clearLocalCart());
+        } catch (mergeError) {
+          console.error("Failed to merge cart after registration:", mergeError);
+          // Continue to home page even if merge fails
+        }
+      }
+
       navigate("/");
     } catch (err) {
       // Error is handled by the mutation hook

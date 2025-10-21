@@ -7,17 +7,25 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
+import Badge from "@mui/material/Badge";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
-import { AccountCircle } from "@mui/icons-material";
+import { AccountCircle, ShoppingCart } from "@mui/icons-material";
 
-import { useAppSelector } from "@/app/hooks";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import {
   selectCurrentUser,
   selectIsAuthenticated,
 } from "@/features/auth/authSlice";
 import { useLogoutMutation } from "@/features/auth/authApi";
+import {
+  selectAnimationTrigger,
+  toggleDrawer,
+} from "@/features/cart/cartSlice";
+import { useCart } from "@/features/cart/useCart";
+import { getCartIconAnimationStyles } from "@/features/cart/cartAnimations";
+import CartDrawer from "@/features/cart/CartDrawer";
 
 interface NavbarProps {
   // drawerWidth: number;
@@ -28,9 +36,12 @@ export default function Navbar({
   /* drawerWidth,  */ onMenuClick,
 }: NavbarProps) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const currentUser = useAppSelector(selectCurrentUser);
+  const animationTrigger = useAppSelector(selectAnimationTrigger);
   const [logout] = useLogoutMutation();
+  const { count } = useCart();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -66,6 +77,10 @@ export default function Navbar({
     navigate("/user/register");
   };
 
+  const handleCartClick = () => {
+    navigate("/cart");
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -97,6 +112,19 @@ export default function Navbar({
         </Link>
 
         <Box sx={{ flexGrow: 1 }} />
+
+        {/* Cart Icon */}
+        <IconButton
+          size="large"
+          aria-label="shopping cart"
+          onClick={() => dispatch(toggleDrawer())}
+          color="inherit"
+          sx={getCartIconAnimationStyles(animationTrigger)}
+        >
+          <Badge badgeContent={count} color="secondary">
+            <ShoppingCart />
+          </Badge>
+        </IconButton>
 
         {/* User Menu */}
         <IconButton
@@ -160,29 +188,32 @@ export default function Navbar({
         >
           {isAuthenticated && currentUser
             ? [
-              <MenuItem key="username" disabled>
-                <Typography variant="body2" color="text.secondary">
-                  {currentUser.name}
-                </Typography>
-              </MenuItem>,
-              <Divider key="divider" />,
-              <MenuItem key="profile" onClick={handleProfileClick}>
-                Profile
-              </MenuItem>,
-              <MenuItem key="logout" onClick={handleLogout}>
-                Logout
-              </MenuItem>,
-            ]
+                <MenuItem key="username" disabled>
+                  <Typography variant="body2" color="text.secondary">
+                    {currentUser.name}
+                  </Typography>
+                </MenuItem>,
+                <Divider key="divider" />,
+                <MenuItem key="profile" onClick={handleProfileClick}>
+                  Profile
+                </MenuItem>,
+                <MenuItem key="logout" onClick={handleLogout}>
+                  Logout
+                </MenuItem>,
+              ]
             : [
-              <MenuItem key="login" onClick={handleLoginClick}>
-                Login
-              </MenuItem>,
-              <MenuItem key="register" onClick={handleRegisterClick}>
-                Register
-              </MenuItem>,
-            ]}
+                <MenuItem key="login" onClick={handleLoginClick}>
+                  Login
+                </MenuItem>,
+                <MenuItem key="register" onClick={handleRegisterClick}>
+                  Register
+                </MenuItem>,
+              ]}
         </Menu>
       </Toolbar>
+
+      {/* Cart Drawer */}
+      <CartDrawer onNavigateToCart={handleCartClick} />
     </AppBar>
   );
 }

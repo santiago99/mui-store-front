@@ -19,6 +19,7 @@ import { useAppSelector } from "@/app/hooks";
 import { selectAuthData } from "@/features/auth/authSlice";
 import { useLoginMutation, useLazyGetCurrentUserQuery } from "./authApi";
 import { SignInContainer } from "@/theme/components/SignInContainer";
+import { selectLocalCartItems } from "@/features/cart/cartSlice";
 
 interface LoginPageFormFields extends HTMLFormControlsCollection {
   email: HTMLInputElement;
@@ -50,14 +51,17 @@ const Card = styled(MuiCard)(({ theme }) => ({
 export const LoginPage = () => {
   const navigate = useNavigate();
   const { status: authStatus } = useAppSelector(selectAuthData);
+  const localCartItems = useAppSelector(selectLocalCartItems);
   const [login, { isLoading, error }] = useLoginMutation();
   const [getCurrentUser] = useLazyGetCurrentUserQuery();
+  const [hasJustLoggedIn, setHasJustLoggedIn] = React.useState(false);
 
   React.useEffect(() => {
-    if (authStatus === "authorized") {
+    // Only redirect if user is authorized and we haven't just completed a login
+    if (authStatus === "authorized" && !hasJustLoggedIn) {
       navigate("/");
     }
-  }, [authStatus, navigate]);
+  }, [authStatus, navigate, hasJustLoggedIn]);
 
   const handleSubmit = async (e: React.FormEvent<LoginPageFormElements>) => {
     e.preventDefault();
@@ -69,7 +73,19 @@ export const LoginPage = () => {
       await login({ email, password }).unwrap();
       // After successful login, fetch the current user to populate the auth state
       await getCurrentUser();
-      navigate("/");
+
+      // Set flag to prevent useEffect from redirecting
+      setHasJustLoggedIn(true);
+
+      // Check if user has items in localStorage cart
+      //console.log("Login successful, local cart items:", localCartItems.length);
+      if (localCartItems.length > 0) {
+        //console.log("Redirecting to merge-cart page");
+        navigate("/merge-cart");
+      } else {
+        //console.log("No local cart items, redirecting to home");
+        navigate("/");
+      }
     } catch (err) {
       // Error is handled by the mutation hook
       console.error("Login failed:", err);

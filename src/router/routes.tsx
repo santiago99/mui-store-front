@@ -9,6 +9,8 @@ import { Frontpage } from "@/features/frontpage/Frontpage";
 import DefaultLayout from "@/theme/layouts/DefaultLayout";
 import CategoryPage from "@/features/category/CategoryPage";
 import ProductPage from "@/features/product/ProductPage";
+import CartPage from "@/features/cart/CartPage";
+import MergeCartPage from "@/features/cart/MergeCartPage";
 // import { categoryPreloader } from "@/features/category/categoryPreloader";
 
 import PrivateRoute from "./PrivateRoute";
@@ -39,10 +41,14 @@ export const router = createBrowserRouter([
         element: <CategoryPage />,
         //loader: categoryPreloader,
       },
-      /* {
+      {
         path: "cart",
-        element: <Cart />,
-      }, */
+        element: <CartPage />,
+      },
+      {
+        path: "merge-cart",
+        element: <MergeCartPage />,
+      },
       {
         path: "product/:productId",
         element: <ProductPage />,

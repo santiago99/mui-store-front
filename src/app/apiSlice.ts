@@ -68,6 +68,10 @@ export const apiSlice = createApi({
         "updatePassword",
         "requestPasswordReset",
         "resetPassword",
+        "addToCart",
+        "updateCartItem",
+        "removeCartItem",
+        "mergeCart",
       ];
       if (
         authEndpoints.some((authEndpoint) => endpoint.includes(authEndpoint))
@@ -87,7 +91,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Product", "Category", "User"],
+  tagTypes: ["Product", "Category", "User", "Cart"],
   endpoints: (builder) => ({
     getProducts: builder.query<
       PaginatedResponse<Product>,

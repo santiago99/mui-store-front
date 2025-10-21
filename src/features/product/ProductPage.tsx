@@ -10,13 +10,13 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
-// import Chip from "@mui/material/Chip";
 import Skeleton from "@mui/material/Skeleton";
 import Alert from "@mui/material/Alert";
 import Divider from "@mui/material/Divider";
+import Snackbar from "@mui/material/Snackbar";
 
 import { useGetProductQuery } from "@/app/apiSlice";
-//import type { Product } from "@/features/product/productApi";
+import { useCart } from "@/features/cart/useCart";
 
 function formatPriceRub(price: number): string {
   return new Intl.NumberFormat("ru-RU", {
@@ -36,6 +36,8 @@ export default function ProductPage() {
   } = useGetProductQuery(productIdNumber);
 
   const [quantity, setQuantity] = useState(1);
+  const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false);
+  const { addItem, isAddingToCart } = useCart();
 
   const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10);
@@ -44,9 +46,15 @@ export default function ProductPage() {
     }
   };
 
-  const handleAddToCart = () => {
-    // TODO: Implement add to cart functionality
-    console.log("Adding to cart:", { product, quantity });
+  const handleAddToCart = async () => {
+    if (!product) return;
+
+    try {
+      await addItem(product, quantity);
+      setShowSuccessSnackbar(true);
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    }
   };
 
   if (error) {
@@ -151,10 +159,10 @@ export default function ProductPage() {
                     size="large"
                     fullWidth
                     onClick={handleAddToCart}
-                    disabled={isLoading}
+                    disabled={isLoading || isAddingToCart}
                     sx={{ py: 1.5 }}
                   >
-                    {isLoading ? "Loading..." : "Add to Cart"}
+                    {isAddingToCart ? "Adding..." : "Add to Cart"}
                   </Button>
 
                   {/* Buy Now Button */}
@@ -229,6 +237,15 @@ export default function ProductPage() {
           </Grid>
         </Grid>
       </Box>
+
+      {/* Success Snackbar */}
+      <Snackbar
+        open={showSuccessSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccessSnackbar(false)}
+        message="Product added to cart!"
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      />
     </Container>
   );
 }

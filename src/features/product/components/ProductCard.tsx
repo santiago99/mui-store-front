@@ -8,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import { Link as RouterLink } from "react-router-dom";
 
 import type { Product } from "@/features/product/productApi";
+import { useCart } from "@/features/cart/useCart";
 
 function formatPriceRub(price: number): string {
   return new Intl.NumberFormat("ru-RU", {
@@ -19,11 +20,19 @@ function formatPriceRub(price: number): string {
 
 export interface ProductCardProps {
   product: Product;
-  onAddToCart?: (product: Product) => void;
 }
 
 export default function ProductCard(props: ProductCardProps) {
-  const { product, onAddToCart } = props;
+  const { product } = props;
+  const { addItem, isAddingToCart } = useCart();
+
+  const handleAddToCart = async () => {
+    try {
+      await addItem(product, 1);
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    }
+  };
 
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -59,9 +68,10 @@ export default function ProductCard(props: ProductCardProps) {
         <Button
           size="small"
           variant="contained"
-          onClick={() => onAddToCart?.(product)}
+          onClick={handleAddToCart}
+          disabled={isAddingToCart}
         >
-          Add to cart
+          {isAddingToCart ? "Adding..." : "Add to cart"}
         </Button>
       </CardActions>
     </Card>
