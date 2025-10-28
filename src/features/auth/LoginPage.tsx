@@ -20,6 +20,7 @@ import { selectAuthData } from "@/features/auth/authSlice";
 import { useLoginMutation, useLazyGetCurrentUserQuery } from "./authApi";
 import { SignInContainer } from "@/theme/components/SignInContainer";
 import { selectLocalCartItems } from "@/features/cart/cartSlice";
+import { useTranslation } from "react-i18next";
 
 interface LoginPageFormFields extends HTMLFormControlsCollection {
   email: HTMLInputElement;
@@ -49,6 +50,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export const LoginPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { status: authStatus } = useAppSelector(selectAuthData);
   const localCartItems = useAppSelector(selectLocalCartItems);
@@ -95,7 +97,7 @@ export const LoginPage = () => {
   let errorsRender = null;
 
   if (error) {
-    let errorMessage = "An error occurred during login";
+    let errorMessage = t("auth.errorDuringLogin");
     if (
       "data" in error &&
       error.data &&
@@ -121,7 +123,7 @@ export const LoginPage = () => {
           variant="h4"
           sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
         >
-          Sign in
+          {t("auth.signIn")}
         </Typography>
         <Box
           component="form"
@@ -136,12 +138,12 @@ export const LoginPage = () => {
         >
           {errorsRender}
           <FormControl>
-            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormLabel htmlFor="email">{t("common.email")}</FormLabel>
             <TextField
               id="email"
               type="email"
               name="email"
-              placeholder="your@email.com"
+              placeholder={t("auth.yourEmail")}
               autoComplete="email"
               autoFocus
               required
@@ -151,10 +153,10 @@ export const LoginPage = () => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel htmlFor="password">{t("common.password")}</FormLabel>
             <TextField
               name="password"
-              placeholder="••••••"
+              placeholder={t("auth.passwordPlaceholder")}
               type="password"
               id="password"
               autoComplete="current-password"
@@ -171,11 +173,11 @@ export const LoginPage = () => {
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? t("auth.signingIn") : t("auth.signIn")}
           </Button>
           <Box sx={{ textAlign: "center", mt: 2 }}>
             <Link component={RouterLink} to="/user/register" variant="body2">
-              Don't have an account? Sign up
+              {t("auth.dontHaveAccount")}
             </Link>
             <br />
             <Link
@@ -183,7 +185,7 @@ export const LoginPage = () => {
               to="/user/forgot-password"
               variant="body2"
             >
-              Forgot your password?
+              {t("auth.forgotPassword")}
             </Link>
           </Box>
         </Box>

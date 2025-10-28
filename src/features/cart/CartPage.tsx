@@ -24,8 +24,10 @@ import { Link as RouterLink } from "react-router-dom";
 
 import { useCart } from "./useCart";
 import { formatPriceRub } from "./cartUtils";
+import { useTranslation } from "react-i18next";
 
 export default function CartPage() {
+  const { t } = useTranslation();
   const {
     items,
     count,
@@ -86,16 +88,16 @@ export default function CartPage() {
             variant="outlined"
             size="small"
           >
-            Continue Shopping
+            {t("cart.continueShopping")}
           </Button>
           <Typography variant="h4" component="h1">
-            Shopping Cart
+            {t("cart.shoppingCart")}
           </Typography>
         </Stack>
 
         {items.length > 0 && (
           <Typography variant="body1" color="text.secondary">
-            {count} {count === 1 ? "item" : "items"} in your cart
+            {t("cart.itemsInCart", { count })}
           </Typography>
         )}
       </Box>
@@ -106,10 +108,10 @@ export default function CartPage() {
             sx={{ fontSize: 120, color: "text.secondary", mb: 3 }}
           />
           <Typography variant="h5" color="text.secondary" gutterBottom>
-            Your cart is empty
+            {t("cart.yourCartIsEmpty")}
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Looks like you haven't added any items to your cart yet.
+            {t("cart.looksLikeEmpty")}
           </Typography>
           <Button
             component={RouterLink}
@@ -117,7 +119,7 @@ export default function CartPage() {
             variant="contained"
             size="large"
           >
-            Start Shopping
+            {t("cart.startShopping")}
           </Button>
         </Box>
       ) : (
@@ -235,7 +237,7 @@ export default function CartPage() {
                 onClick={handleClearCart}
                 startIcon={<DeleteIcon />}
               >
-                Clear Cart
+                {t("cart.clearCart")}
               </Button>
             </Box>
           </Grid>
@@ -245,7 +247,7 @@ export default function CartPage() {
             <Card variant="outlined" sx={{ position: "sticky", top: 20 }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Order Summary
+                  {t("cart.orderSummary")}
                 </Typography>
 
                 <Divider sx={{ my: 2 }} />
@@ -257,7 +259,9 @@ export default function CartPage() {
                     mb: 2,
                   }}
                 >
-                  <Typography variant="body1">Items ({count}):</Typography>
+                  <Typography variant="body1">
+                    {t("common.items")} ({count}):
+                  </Typography>
                   <Typography variant="body1">
                     {formatPriceRub(total)}
                   </Typography>
@@ -270,9 +274,9 @@ export default function CartPage() {
                     mb: 2,
                   }}
                 >
-                  <Typography variant="body1">Shipping:</Typography>
+                  <Typography variant="body1">{t("cart.shipping")}:</Typography>
                   <Typography variant="body1" color="text.secondary">
-                    Calculated at checkout
+                    {t("cart.calculatedAtCheckout")}
                   </Typography>
                 </Box>
 
@@ -285,7 +289,7 @@ export default function CartPage() {
                     mb: 3,
                   }}
                 >
-                  <Typography variant="h6">Total:</Typography>
+                  <Typography variant="h6">{t("common.total")}:</Typography>
                   <Typography variant="h6" color="primary" fontWeight="bold">
                     {formatPriceRub(total)}
                   </Typography>
@@ -298,7 +302,7 @@ export default function CartPage() {
                   disabled
                   sx={{ py: 1.5, mb: 2 }}
                 >
-                  Checkout (Coming Soon)
+                  {t("cart.checkoutComingSoon")}
                 </Button>
 
                 <Button
@@ -309,7 +313,7 @@ export default function CartPage() {
                   fullWidth
                   sx={{ py: 1.5 }}
                 >
-                  Continue Shopping
+                  {t("cart.continueShopping")}
                 </Button>
               </CardContent>
             </Card>

@@ -9,6 +9,7 @@ import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
 import { useGetProductsQuery } from "@/app/apiSlice";
 import { type Product } from "@/features/product/productApi";
+import { useTranslation } from "react-i18next";
 
 export interface ProductListProps {
   pageSize?: number;
@@ -16,6 +17,7 @@ export interface ProductListProps {
 }
 
 export default function ProductList(props: ProductListProps) {
+  const { t } = useTranslation();
   const { pageSize = 12, categoryId } = props;
   const [page, setPage] = React.useState(1);
   const {
@@ -29,10 +31,12 @@ export default function ProductList(props: ProductListProps) {
     category_id: categoryId,
   });
 
+  const gridItemSize = { xs: 12, sm: 6, md: 4, lg: 4, xl: 3 };
+
   const renderSkeletons = () => (
     <Grid container spacing={2}>
       {Array.from({ length: pageSize }).map((_, idx) => (
-        <Grid key={`skeleton-${idx}`} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <Grid key={`skeleton-${idx}`} size={gridItemSize}>
           <ProductCardSkeleton />
         </Grid>
       ))}
@@ -46,7 +50,7 @@ export default function ProductList(props: ProductListProps) {
   if (isError) {
     return (
       <Stack spacing={2} sx={{ py: 2 }}>
-        <Alert severity="error">Не удалось загрузить товары</Alert>
+        <Alert severity="error">{t("errors.failedToLoadProducts")}</Alert>
       </Stack>
     );
   }
@@ -65,7 +69,7 @@ export default function ProductList(props: ProductListProps) {
       ) : (
         <Grid container spacing={2}>
           {products?.data.map((p: Product) => (
-            <Grid key={p.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <Grid key={p.id} size={gridItemSize}>
               <ProductCard product={p} />
             </Grid>
           ))}

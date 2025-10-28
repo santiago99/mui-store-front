@@ -6,6 +6,7 @@ import { store } from "./app/store";
 //import { apiSlice } from "@/features/api/apiSlice";
 
 import App from "./App.tsx";
+import "./i18n/config";
 
 async function start() {
   //await store.dispatch(apiSlice.endpoints.getCurrentUser.initiate());

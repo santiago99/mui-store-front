@@ -12,6 +12,10 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
 
 import { useAppSelector } from "@/app/hooks";
 import { selectCurrentUser } from "@/features/auth/authSlice";
@@ -21,6 +25,7 @@ import {
   useUpdatePasswordMutation,
   useLogoutMutation,
 } from "./authApi";
+import { useTranslation } from "react-i18next";
 
 interface ProfileFormFields extends HTMLFormControlsCollection {
   name: HTMLInputElement;
@@ -40,6 +45,7 @@ interface PasswordFormElements extends HTMLFormElement {
 }
 
 export const ProfilePage = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const currentUser = useAppSelector(selectCurrentUser);
   const { data: user, isLoading: isLoadingUser } = useGetCurrentUserQuery();
@@ -116,18 +122,18 @@ export const ProfilePage = () => {
   }
 
   if (!displayUser) {
-    return <Alert severity="error">Unable to load user profile.</Alert>;
+    return <Alert severity="error">{t("auth.unableToLoadProfile")}</Alert>;
   }
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        User Profile
+        {t("auth.userProfile")}
       </Typography>
 
       {/* Profile Information Card */}
       <Card sx={{ mb: 3 }}>
-        <CardHeader title="Profile Information" />
+        <CardHeader title={t("auth.profileInformation")} />
         <CardContent>
           <Box
             component="form"
@@ -135,7 +141,7 @@ export const ProfilePage = () => {
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             {profileSuccess && (
-              <Alert severity="success">Profile updated successfully!</Alert>
+              <Alert severity="success">{t("auth.profileUpdated")}</Alert>
             )}
             {profileError && (
               <Alert severity="error">
@@ -144,7 +150,7 @@ export const ProfilePage = () => {
                 typeof profileError.data === "object" &&
                 "message" in profileError.data
                   ? (profileError.data.message as string)
-                  : "An error occurred while updating profile"}
+                  : t("auth.errorUpdatingProfile")}
               </Alert>
             )}
             <Box>
@@ -152,7 +158,7 @@ export const ProfilePage = () => {
               {/* <Grid size={{ xs: 12, sm: 6 }}> */}
               <TextField
                 name="name"
-                label="Full Name"
+                label={t("auth.fullName")}
                 defaultValue={displayUser.name}
                 fullWidth
                 required
@@ -180,15 +186,35 @@ export const ProfilePage = () => {
               }
               sx={{ alignSelf: "flex-start" }}
             >
-              {isUpdatingProfile ? "Updating..." : "Update Profile"}
+              {isUpdatingProfile
+                ? t("auth.updatingProfile")
+                : t("auth.updateProfile")}
             </Button>
           </Box>
         </CardContent>
       </Card>
 
+      {/* Language Preferences Card */}
+      <Card sx={{ mb: 3 }}>
+        <CardHeader title={t("common.language")} />
+        <CardContent>
+          <FormControl fullWidth>
+            <FormLabel>{t("common.language")}</FormLabel>
+            <Select
+              value={i18n.language}
+              onChange={(e) => i18n.changeLanguage(e.target.value)}
+              displayEmpty
+            >
+              <MenuItem value="en">{t("common.english")}</MenuItem>
+              <MenuItem value="ru">{t("common.russian")}</MenuItem>
+            </Select>
+          </FormControl>
+        </CardContent>
+      </Card>
+
       {/* Change Password Card */}
       <Card sx={{ mb: 3 }}>
-        <CardHeader title="Change Password" />
+        <CardHeader title={t("auth.changePassword")} />
         <CardContent>
           <Box
             component="form"
@@ -196,7 +222,7 @@ export const ProfilePage = () => {
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             {passwordSuccess && (
-              <Alert severity="success">Password updated successfully!</Alert>
+              <Alert severity="success">{t("auth.passwordUpdated")}</Alert>
             )}
             {passwordError && (
               <Alert severity="error">
@@ -205,12 +231,12 @@ export const ProfilePage = () => {
                 typeof passwordError.data === "object" &&
                 "message" in passwordError.data
                   ? (passwordError.data.message as string)
-                  : "An error occurred while updating password"}
+                  : t("auth.errorUpdatingPassword")}
               </Alert>
             )}
             <TextField
               name="current_password"
-              label="Current Password"
+              label={t("common.currentPassword")}
               type="password"
               fullWidth
               required
@@ -218,7 +244,7 @@ export const ProfilePage = () => {
             />
             <TextField
               name="new_password"
-              label="New Password"
+              label={t("common.newPassword")}
               type="password"
               fullWidth
               required
@@ -226,7 +252,7 @@ export const ProfilePage = () => {
             />
             <TextField
               name="new_password_confirmation"
-              label="Confirm New Password"
+              label={t("common.confirmPassword")}
               type="password"
               fullWidth
               required
@@ -241,7 +267,9 @@ export const ProfilePage = () => {
               }
               sx={{ alignSelf: "flex-start" }}
             >
-              {isUpdatingPassword ? "Updating..." : "Update Password"}
+              {isUpdatingPassword
+                ? t("auth.updatingPassword")
+                : t("auth.updatePassword")}
             </Button>
           </Box>
         </CardContent>
@@ -251,7 +279,7 @@ export const ProfilePage = () => {
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            Account Actions
+            {t("auth.accountActions")}
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Button
@@ -261,7 +289,7 @@ export const ProfilePage = () => {
             disabled={isLoggingOut}
             startIcon={isLoggingOut ? <CircularProgress size={20} /> : null}
           >
-            {isLoggingOut ? "Logging out..." : "Logout"}
+            {isLoggingOut ? t("auth.loggingOut") : t("common.logout")}
           </Button>
         </CardContent>
       </Card>

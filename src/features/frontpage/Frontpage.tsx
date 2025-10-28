@@ -12,12 +12,15 @@ import {
 } from "@mui/material";
 // import { NewsTimeline } from '@/features/news/NewsTimeline'
 import ProductList from "@/features/product/components/ProductList";
+import { useTranslation } from "react-i18next";
 
 export const Frontpage = () => {
+  const { t } = useTranslation();
+
   return (
     <Container sx={{ py: 4 }}>
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h5">Каталог</Typography>
+        <Typography variant="h5">{t("category.catalog")}</Typography>
       </Box>
       <ProductList pageSize={12} />
     </Container>

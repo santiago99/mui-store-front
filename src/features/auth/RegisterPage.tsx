@@ -26,6 +26,7 @@ import { useMergeCartMutation } from "@/features/cart/cartApi";
 import { formatCartItemsForMerge } from "@/features/cart/cartUtils";
 
 import { SignInContainer } from "@/theme/components/SignInContainer";
+import { useTranslation } from "react-i18next";
 
 interface RegisterPageFormFields extends HTMLFormControlsCollection {
   name: HTMLInputElement;
@@ -57,6 +58,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export const RegisterPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { status: authStatus } = useAppSelector(selectAuthData);
@@ -112,7 +114,7 @@ export const RegisterPage = () => {
   let errorsRender = null;
 
   if (error) {
-    let errorMessage = "An error occurred during registration";
+    let errorMessage = t("auth.errorDuringRegistration");
     if (
       "data" in error &&
       error.data &&
@@ -138,7 +140,7 @@ export const RegisterPage = () => {
           variant="h4"
           sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
         >
-          Sign up
+          {t("auth.signUp")}
         </Typography>
         <Box
           component="form"
@@ -153,7 +155,7 @@ export const RegisterPage = () => {
         >
           {errorsRender}
           <FormControl>
-            <FormLabel htmlFor="name">Full Name</FormLabel>
+            <FormLabel htmlFor="name">{t("auth.fullName")}</FormLabel>
             <TextField
               id="name"
               type="text"
@@ -168,12 +170,12 @@ export const RegisterPage = () => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormLabel htmlFor="email">{t("common.email")}</FormLabel>
             <TextField
               id="email"
               type="email"
               name="email"
-              placeholder="your@email.com"
+              placeholder={t("auth.yourEmail")}
               autoComplete="email"
               required
               fullWidth
@@ -182,10 +184,10 @@ export const RegisterPage = () => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel htmlFor="password">{t("common.password")}</FormLabel>
             <TextField
               name="password"
-              placeholder="••••••"
+              placeholder={t("auth.passwordPlaceholder")}
               type="password"
               id="password"
               autoComplete="new-password"
@@ -197,11 +199,11 @@ export const RegisterPage = () => {
           </FormControl>
           <FormControl>
             <FormLabel htmlFor="password_confirmation">
-              Confirm Password
+              {t("common.confirmPassword")}
             </FormLabel>
             <TextField
               name="password_confirmation"
-              placeholder="••••••"
+              placeholder={t("auth.passwordPlaceholder")}
               type="password"
               id="password_confirmation"
               autoComplete="new-password"
@@ -218,11 +220,11 @@ export const RegisterPage = () => {
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
-            {isLoading ? "Creating account..." : "Sign up"}
+            {isLoading ? t("auth.creatingAccount") : t("auth.signUp")}
           </Button>
           <Box sx={{ textAlign: "center", mt: 2 }}>
             <Link component={RouterLink} to="/user/login" variant="body2">
-              Already have an account? Sign in
+              {t("auth.alreadyHaveAccount")}
             </Link>
           </Box>
         </Box>

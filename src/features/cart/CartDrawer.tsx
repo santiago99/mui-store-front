@@ -23,12 +23,14 @@ import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { selectIsDrawerOpen, closeDrawer } from "./cartSlice";
 import { useCart } from "./useCart";
 import { formatPriceRub } from "./cartUtils";
+import { useTranslation } from "react-i18next";
 
 interface CartDrawerProps {
   onNavigateToCart?: () => void;
 }
 
 export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector(selectIsDrawerOpen);
   const { items, count, total, isLoading, updateItemQuantity, removeItem } =
@@ -84,7 +86,7 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
             justifyContent="space-between"
           >
             <Typography variant="h6" component="h2">
-              Shopping Cart ({count})
+              {t("cart.shoppingCart")} ({count})
             </Typography>
             <IconButton onClick={handleClose} size="small">
               <CloseIcon />
@@ -104,10 +106,10 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
                 sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
               />
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                Your cart is empty
+                {t("cart.yourCartIsEmpty")}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Add some items to get started
+                {t("cart.addSomeItems")}
               </Typography>
             </Box>
           ) : (
@@ -232,7 +234,7 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
                     alignItems: "center",
                   }}
                 >
-                  <Typography variant="h6">Total:</Typography>
+                  <Typography variant="h6">{t("common.total")}:</Typography>
                   <Typography variant="h6" color="primary" fontWeight="bold">
                     {formatPriceRub(total)}
                   </Typography>
@@ -245,7 +247,7 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
                   disabled
                   sx={{ py: 1.5 }}
                 >
-                  Checkout (Coming Soon)
+                  {t("cart.checkoutComingSoon")}
                 </Button>
 
                 <Button
@@ -255,7 +257,7 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
                   onClick={handleViewCart}
                   sx={{ py: 1.5 }}
                 >
-                  View Cart
+                  {t("cart.viewCart")}
                 </Button>
               </Stack>
             </Box>

@@ -24,6 +24,7 @@ import {
 import type { Category } from "@/features/category/categoryApi";
 import { Toolbar } from "@mui/material";
 import { useAppSelector } from "@/app/hooks";
+import { useTranslation } from "react-i18next";
 
 type ListItemLinkProps = {
   to?: string;
@@ -53,6 +54,7 @@ function CategoryTreeItem({
   currentCategoryId,
   currentCategoryAncestors,
 }: CategoryTreeItemProps) {
+  const { t } = useTranslation();
   const isLeaf = category.isLeaf;
   const isActive =
     currentCategoryId &&
@@ -106,7 +108,7 @@ function CategoryTreeItem({
             secondary={
               category.productsCount && category.productsCount > 0 ? (
                 <Typography variant="caption" color="text.secondary">
-                  {category.productsCount} товаров
+                  {category.productsCount} {t("sidebar.products")}
                 </Typography>
               ) : null
             }
@@ -135,6 +137,7 @@ function CategoryTreeItem({
 }
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { data: categories, isLoading, isError } = useGetCategoriesTreeQuery();
   const navigation = useAppSelector((state) => state.navigation);
@@ -180,7 +183,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         }}
       >
         <Typography variant="h6" component="div">
-          Категории
+          {t("sidebar.categories")}
         </Typography>
         <IconButton onClick={onClose} sx={{ display: { sm: "none" } }}>
           {theme.direction === "rtl" ? (
@@ -194,13 +197,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         {isLoading ? (
           <Box sx={{ p: 2 }}>
             <Typography variant="body2" color="text.secondary">
-              Загрузка категорий...
+              {t("sidebar.loadingCategories")}
             </Typography>
           </Box>
         ) : isError ? (
           <Box sx={{ p: 2 }}>
             <Typography variant="body2" color="error">
-              Ошибка загрузки категорий
+              {t("sidebar.errorLoadingCategories")}
             </Typography>
           </Box>
         ) : (

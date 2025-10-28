@@ -2,6 +2,7 @@ import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
+import CardActionArea from "@mui/material/CardActionArea";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
@@ -9,6 +10,7 @@ import { Link as RouterLink } from "react-router-dom";
 
 import type { Product } from "@/features/product/productApi";
 import { useCart } from "@/features/cart/useCart";
+import { useTranslation } from "react-i18next";
 
 function formatPriceRub(price: number): string {
   return new Intl.NumberFormat("ru-RU", {
@@ -23,10 +25,13 @@ export interface ProductCardProps {
 }
 
 export default function ProductCard(props: ProductCardProps) {
+  const { t } = useTranslation();
   const { product } = props;
   const { addItem, isAddingToCart } = useCart();
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
     try {
       await addItem(product, 1);
     } catch (error) {
@@ -36,34 +41,47 @@ export default function ProductCard(props: ProductCardProps) {
 
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <CardMedia
-        component="img"
-        image={
-          product.imageUrl.length > 0
-            ? product.imageUrl
-            : "/assets/no-photo.jpeg"
-        }
-        alt={product.title}
-        sx={{ height: 200, objectFit: "cover" }}
-      />
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Stack spacing={1}>
-          <Typography gutterBottom variant="subtitle1" component="div" noWrap>
-            {product.title}
-          </Typography>
-          <Typography variant="h6" color="text.primary">
-            {formatPriceRub(product.price)}
-          </Typography>
-        </Stack>
-      </CardContent>
-      <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
+      <CardActionArea
+        component={RouterLink}
+        to={`/product/${product.id}`}
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+        }}
+      >
+        <CardMedia
+          component="img"
+          image={
+            product.imageUrl.length > 0
+              ? product.imageUrl
+              : "/assets/no-photo.jpeg"
+          }
+          alt={product.title}
+          sx={{ height: 200, objectFit: "cover" }}
+        />
+        <CardContent sx={{ flexGrow: 1, width: "100%" }}>
+          <Stack spacing={1}>
+            <Typography gutterBottom variant="subtitle1" component="div" noWrap>
+              {product.title}
+            </Typography>
+            <Typography variant="h6" color="text.primary">
+              {formatPriceRub(product.price)}
+            </Typography>
+          </Stack>
+        </CardContent>
+      </CardActionArea>
+      <CardActions
+        sx={{ p: 1, pt: 0, gap: 1, justifyContent: "space-between" }}
+      >
         <Button
           size="small"
-          variant="outlined"
+          variant="text"
           component={RouterLink}
           to={`/product/${product.id}`}
         >
-          Learn more
+          {t("product.learnMore")}
         </Button>
         <Button
           size="small"
@@ -71,7 +89,7 @@ export default function ProductCard(props: ProductCardProps) {
           onClick={handleAddToCart}
           disabled={isAddingToCart}
         >
-          {isAddingToCart ? "Adding..." : "Add to cart"}
+          {isAddingToCart ? t("product.adding") : t("product.addToCartSmall")}
         </Button>
       </CardActions>
     </Card>

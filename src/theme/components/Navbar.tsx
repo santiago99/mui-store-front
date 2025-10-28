@@ -19,6 +19,7 @@ import {
   selectIsAuthenticated,
 } from "@/features/auth/authSlice";
 import { useLogoutMutation } from "@/features/auth/authApi";
+import { useTranslation } from "react-i18next";
 import {
   selectAnimationTrigger,
   toggleDrawer,
@@ -26,6 +27,7 @@ import {
 import { useCart } from "@/features/cart/useCart";
 import { getCartIconAnimationStyles } from "@/features/cart/cartAnimations";
 import CartDrawer from "@/features/cart/CartDrawer";
+import LanguageSwitcher from "@/features/language/LanguageSwitcher";
 
 interface NavbarProps {
   // drawerWidth: number;
@@ -35,6 +37,7 @@ interface NavbarProps {
 export default function Navbar({
   /* drawerWidth,  */ onMenuClick,
 }: NavbarProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -93,7 +96,7 @@ export default function Navbar({
       <Toolbar>
         <IconButton
           color="inherit"
-          aria-label="open drawer"
+          aria-label={t("navbar.openDrawer")}
           edge="start"
           onClick={onMenuClick}
           sx={{ mr: 2, display: { sm: "none" } }}
@@ -113,10 +116,13 @@ export default function Navbar({
 
         <Box sx={{ flexGrow: 1 }} />
 
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* Cart Icon */}
         <IconButton
           size="large"
-          aria-label="shopping cart"
+          aria-label={t("navbar.shoppingCart")}
           onClick={() => dispatch(toggleDrawer())}
           color="inherit"
           sx={getCartIconAnimationStyles(animationTrigger)}
@@ -129,7 +135,7 @@ export default function Navbar({
         {/* User Menu */}
         <IconButton
           size="large"
-          aria-label="account of current user"
+          aria-label={t("navbar.accountOfCurrentUser")}
           aria-controls="user-menu"
           aria-haspopup="true"
           onClick={handleMenuOpen}
@@ -195,18 +201,18 @@ export default function Navbar({
                 </MenuItem>,
                 <Divider key="divider" />,
                 <MenuItem key="profile" onClick={handleProfileClick}>
-                  Profile
+                  {t("common.profile")}
                 </MenuItem>,
                 <MenuItem key="logout" onClick={handleLogout}>
-                  Logout
+                  {t("common.logout")}
                 </MenuItem>,
               ]
             : [
                 <MenuItem key="login" onClick={handleLoginClick}>
-                  Login
+                  {t("common.login")}
                 </MenuItem>,
                 <MenuItem key="register" onClick={handleRegisterClick}>
-                  Register
+                  {t("common.register")}
                 </MenuItem>,
               ]}
         </Menu>
