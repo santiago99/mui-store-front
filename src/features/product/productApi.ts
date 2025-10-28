@@ -1,8 +1,7 @@
 // import type { CategoryMinimal } from "@/features/category/categoryApi";
 
-
 export interface Product {
-  id: string | number;
+  id: string;
   title: string;
   price: number;
   imageUrl: string;
@@ -10,4 +9,3 @@ export interface Product {
   //category?: CategoryMinimal;
   //categoryAncestors?: CategoryMinimal[];
 }
-

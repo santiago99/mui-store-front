@@ -17,6 +17,7 @@ import Snackbar from "@mui/material/Snackbar";
 
 import { useGetProductQuery } from "@/app/apiSlice";
 import { useCart } from "@/features/cart/useCart";
+import { useTranslation } from "react-i18next";
 
 function formatPriceRub(price: number): string {
   return new Intl.NumberFormat("ru-RU", {
@@ -27,13 +28,13 @@ function formatPriceRub(price: number): string {
 }
 
 export default function ProductPage() {
+  const { t } = useTranslation();
   const { productId } = useParams();
-  const productIdNumber = parseInt(productId!, 10);
   const {
     data: product,
     isLoading,
     error,
-  } = useGetProductQuery(productIdNumber);
+  } = useGetProductQuery(productId! as string);
 
   const [quantity, setQuantity] = useState(1);
   const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false);
@@ -60,9 +61,7 @@ export default function ProductPage() {
   if (error) {
     return (
       <Container sx={{ py: 4 }}>
-        <Alert severity="error">
-          Failed to load product. Please try again later.
-        </Alert>
+        <Alert severity="error">{t("product.failedToLoadProduct")}</Alert>
       </Container>
     );
   }
@@ -133,14 +132,14 @@ export default function ProductPage() {
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Add to Cart
+                  {t("product.addToCart")}
                 </Typography>
 
                 <Stack spacing={2} sx={{ mt: 2 }}>
                   {/* Quantity Input */}
                   <Box>
                     <Typography variant="subtitle2" gutterBottom>
-                      Quantity
+                      {t("common.quantity")}
                     </Typography>
                     <TextField
                       type="number"
@@ -162,7 +161,9 @@ export default function ProductPage() {
                     disabled={isLoading || isAddingToCart}
                     sx={{ py: 1.5 }}
                   >
-                    {isAddingToCart ? "Adding..." : "Add to Cart"}
+                    {isAddingToCart
+                      ? t("product.adding")
+                      : t("product.addToCart")}
                   </Button>
 
                   {/* Buy Now Button */}
@@ -173,7 +174,7 @@ export default function ProductPage() {
                     disabled={isLoading}
                     sx={{ py: 1.5 }}
                   >
-                    Buy Now
+                    {t("product.buyNow")}
                   </Button>
                 </Stack>
               </CardContent>
@@ -190,13 +191,13 @@ export default function ProductPage() {
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Description
+                  {t("common.description")}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
                   {isLoading ? (
                     <Skeleton variant="text" width="100%" height={60} />
                   ) : (
-                    "Product description will be displayed here. This is a placeholder for the actual product description that would come from the API."
+                    t("product.productDescription")
                   )}
                 </Typography>
               </CardContent>
@@ -208,12 +209,12 @@ export default function ProductPage() {
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Additional Information
+                  {t("product.additionalInformation")}
                 </Typography>
                 <Stack spacing={2}>
                   <Box display="flex" justifyContent="space-between">
                     <Typography variant="body2" color="text.secondary">
-                      Product ID:
+                      {t("common.productId")}:
                     </Typography>
                     <Typography variant="body2">
                       {isLoading ? <Skeleton width={60} /> : product?.id}
@@ -243,7 +244,7 @@ export default function ProductPage() {
         open={showSuccessSnackbar}
         autoHideDuration={3000}
         onClose={() => setShowSuccessSnackbar(false)}
-        message="Product added to cart!"
+        message={t("product.productAddedToCart")}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
     </Container>

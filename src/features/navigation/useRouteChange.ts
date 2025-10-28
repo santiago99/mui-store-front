@@ -11,14 +11,13 @@ export function useRouteChange() {
   const prevPath = useRef<string | null>(null);
 
   console.log({ location });
-  
+
   useEffect(() => {
     if (prevPath.current === location.pathname) return;
     prevPath.current = location.pathname;
 
     //dispatch(setPath(location.pathname));
 
-    
     const navData: NavigationState = {
       currentPath: location.pathname,
       route: "default",
@@ -40,11 +39,11 @@ export function useRouteChange() {
       }
     } else if (productMatch) {
       const { productId } = productMatch.params;
-      const productIdNumber = parseInt(productId!, 10);
 
-      if (!isNaN(productIdNumber)) {
+      if (productId) {
+        // @todo: check if productId is a valid UUID
         navData.route = "product";
-        navData.data = { productId: productIdNumber };
+        navData.data = { productId: productId };
       }
     }
 

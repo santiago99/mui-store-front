@@ -117,7 +117,7 @@ export const apiSlice = createApi({
             ]
           : [{ type: "Product" as const, id: "PARTIAL-LIST" }],
     }),
-    getProduct: builder.query<Product, number>({
+    getProduct: builder.query<Product, string>({
       query: (id) => ({
         url: `/products/${id}`,
       }),
