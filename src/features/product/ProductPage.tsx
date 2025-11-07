@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link as RouterLink } from "react-router-dom";
 import { useState } from "react";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -14,6 +14,7 @@ import Skeleton from "@mui/material/Skeleton";
 import Alert from "@mui/material/Alert";
 import Divider from "@mui/material/Divider";
 import Snackbar from "@mui/material/Snackbar";
+import Link from "@mui/material/Link";
 
 import { useGetProductQuery } from "@/app/apiSlice";
 import { useCart } from "@/features/cart/useCart";
@@ -185,9 +186,9 @@ export default function ProductPage() {
 
       {/* Product Description and Properties - Full Width */}
       <Box sx={{ mt: 4 }}>
-        <Grid container spacing={4}>
+        <Stack spacing={4}>
           {/* Product Description */}
-          <Grid size={{ xs: 12, md: 8 }}>
+          {(!isLoading && product?.description) || isLoading ? (
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -197,46 +198,87 @@ export default function ProductPage() {
                   {isLoading ? (
                     <Skeleton variant="text" width="100%" height={60} />
                   ) : (
-                    t("product.productDescription")
+                    product?.description || ""
                   )}
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          ) : null}
 
           {/* Additional Information */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card variant="outlined">
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {t("product.additionalInformation")}
-                </Typography>
-                <Stack spacing={2}>
-                  <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body2" color="text.secondary">
-                      {t("common.productId")}:
-                    </Typography>
-                    <Typography variant="body2">
-                      {isLoading ? <Skeleton width={60} /> : product?.id}
-                    </Typography>
-                  </Box>
-                  {/* <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body2" color="text.secondary">
-                      Category:
-                    </Typography>
-                    <Typography variant="body2">
-                      {isLoading ? (
-                        <Skeleton width={100} />
-                      ) : (
-                        product?.category?.name || "N/A"
-                      )}
-                    </Typography>
-                  </Box> */}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                {t("product.additionalInformation")}
+              </Typography>
+              <Stack spacing={2}>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body2" color="text.secondary">
+                    SKU:
+                  </Typography>
+                  <Typography variant="body2">
+                    {isLoading ? <Skeleton width={60} /> : product?.sku || "—"}
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body2" color="text.secondary">
+                    Brand:
+                  </Typography>
+                  <Typography variant="body2">
+                    {isLoading ? (
+                      <Skeleton width={100} />
+                    ) : product?.brand ? (
+                      <Link
+                        component={RouterLink}
+                        to={`/brands/${product.brand.slug}`}
+                        underline="hover"
+                      >
+                        {product.brand.name}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </Typography>
+                </Box>
+                {product?.fields && product.fields.length > 0 && (
+                  <>
+                    <Divider />
+                    {product.fields.map((field) => (
+                      <Box
+                        key={field.id}
+                        display="flex"
+                        justifyContent="space-between"
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          {field.name}:
+                        </Typography>
+                        <Typography variant="body2">
+                          {field.type === "integer"
+                            ? typeof field.value === "number"
+                              ? field.value
+                              : parseInt(field.value as string, 10)
+                            : String(field.value)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </>
+                )}
+                {/* <Box display="flex" justifyContent="space-between">
+                  <Typography variant="body2" color="text.secondary">
+                    Category:
+                  </Typography>
+                  <Typography variant="body2">
+                    {isLoading ? (
+                      <Skeleton width={100} />
+                    ) : (
+                      product?.category?.name || "N/A"
+                    )}
+                  </Typography>
+                </Box> */}
+              </Stack>
+            </CardContent>
+          </Card>
+        </Stack>
       </Box>
 
       {/* Success Snackbar */}
