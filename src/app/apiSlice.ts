@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { Product } from "@/features/product/productApi";
-import type { Category } from "@/features/category/categoryApi";
+import type { Category, Filter } from "@/features/category/categoryApi";
 
 export interface PaginatedResponseMeta {
   current_page: number;
@@ -152,6 +152,23 @@ export const apiSlice = createApi({
             ]
           : [{ type: "Category" as const, id: "TREE" }],
     }),
+    getCategoryFilters: builder.query<Filter[], number>({
+      query: (id) => ({
+        url: `/categories/${id}/filters`,
+      }),
+      transformResponse: (response: unknown): Filter[] =>
+        (response as ListDataResponse<Filter>).data,
+      providesTags: (result, error, id) =>
+        result
+          ? [
+              ...result.map((f) => ({
+                type: "Category" as const,
+                id: `filters-${id}-${f.id}`,
+              })),
+              { type: "Category" as const, id: `filters-${id}` },
+            ]
+          : [{ type: "Category" as const, id: `filters-${id}` }],
+    }),
   }),
 });
 
@@ -160,4 +177,5 @@ export const {
   useGetProductQuery,
   useGetCategoriesTreeQuery,
   useGetCategoryQuery,
+  useGetCategoryFiltersQuery,
 } = apiSlice;

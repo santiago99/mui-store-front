@@ -67,7 +67,7 @@ export const cartApi = apiSlice.injectEndpoints({
     >({
       query: ({ cartItemId, data }) => ({
         url: `/cart/${cartItemId}`,
-        method: "PATCH",
+        method: "PUT",
         body: data,
       }),
       transformResponse: (response: unknown): CartItem =>

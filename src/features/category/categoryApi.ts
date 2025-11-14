@@ -14,3 +14,21 @@ export interface Category extends CategoryMinimal {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Filter {
+  id: number;
+  name: string;
+  slug: string;
+  type: string;
+  filterType:
+    | "textfield"
+    | "range"
+    | "select"
+    | "checkboxes"
+    | "single checkbox";
+  filterWeight: number;
+  options: unknown | null;
+  filterOptions?: unknown | null;
+  min?: number;
+  max?: number;
+}

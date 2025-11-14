@@ -25,6 +25,7 @@ import type { Category } from "@/features/category/categoryApi";
 import { Toolbar } from "@mui/material";
 import { useAppSelector } from "@/app/hooks";
 import { useTranslation } from "react-i18next";
+import FilterSidebar from "@/features/category/components/FilterSidebar";
 
 type ListItemLinkProps = {
   to?: string;
@@ -221,6 +222,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </List>
         )}
       </Box>
+      <FilterSidebar
+        categoryId={
+          currentCategoryId ? (currentCategoryId as number) : null
+        }
+      />
     </Box>
   );
 
