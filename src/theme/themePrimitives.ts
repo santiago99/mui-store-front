@@ -252,9 +252,8 @@ export const shape = {
 };
 
 export const layoutMath = {
-  headerHeight: 65,
-  sidebarWidth: 300,
-  sidebarVisibilityThreshold: 700,
+  sidebarWidth: 280,
+  maxWidth: 1400,
 };
 
 // @ts-expect-error missing type
