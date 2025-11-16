@@ -1,146 +1,17 @@
-import * as React from "react";
-import { useTheme } from "@mui/material/styles";
 import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import Collapse from "@mui/material/Collapse";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Link as RouterLink } from "react-router-dom";
-//import Link from "@mui/material/Link";
-
-import {
-  useGetCategoriesTreeQuery /* , useGetCategoryQuery  */,
-  useGetCategoryQuery,
-  useGetProductQuery,
-} from "@/app/apiSlice";
-import type { Category } from "@/features/category/categoryApi";
-import { Toolbar } from "@mui/material";
+import { useGetCategoryQuery, useGetProductQuery } from "@/app/apiSlice";
 import { useAppSelector } from "@/app/hooks";
-import { useTranslation } from "react-i18next";
 import FilterSidebar from "@/features/category/components/FilterSidebar";
-
-type ListItemLinkProps = {
-  to?: string;
-  onClick?: () => void;
-  component?: typeof RouterLink;
-};
-
-const drawerWidth = 280;
+import CategoriesTree from "@/features/category/components/CategoriesTree";
+import { layoutMath } from "../themePrimitives";
 
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
 }
 
-interface CategoryTreeItemProps {
-  category: Category;
-  level: number;
-  onClose: () => void;
-  currentCategoryId?: string | number | null;
-  currentCategoryAncestors?: Array<{ id: string | number }>;
-}
-
-function CategoryTreeItem({
-  category,
-  level,
-  onClose,
-  currentCategoryId,
-  currentCategoryAncestors,
-}: CategoryTreeItemProps) {
-  const { t } = useTranslation();
-  const isLeaf = category.isLeaf;
-  const isActive =
-    currentCategoryId &&
-    currentCategoryId.toString() === category.id.toString();
-
-  // Check if this category should be expanded based on ancestors
-  const shouldBeExpanded =
-    currentCategoryAncestors?.some(
-      (ancestor) => ancestor.id.toString() === category.id.toString()
-    ) || false;
-
-  const [open, setOpen] = React.useState(shouldBeExpanded);
-
-  // Update open state when ancestors change
-  React.useEffect(() => {
-    setOpen(shouldBeExpanded);
-  }, [shouldBeExpanded]);
-
-  const handleClick = () => {
-    if (!isLeaf) {
-      setOpen(!open);
-    }
-  };
-
-  const linkProps: ListItemLinkProps = {};
-  if (isLeaf) {
-    linkProps.to = `/category/${category.id}`;
-    linkProps.onClick = onClose;
-    linkProps.component = RouterLink;
-  } else {
-    linkProps.onClick = handleClick;
-  }
-
-  return (
-    <>
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={handleClick}
-          sx={{
-            pl: 2 + level * 2,
-            py: 0.5,
-            backgroundColor: isActive ? "action.selected" : "transparent",
-            "&:hover": {
-              backgroundColor: isActive ? "action.selected" : "action.hover",
-            },
-          }}
-          {...linkProps}
-        >
-          <ListItemText
-            primary={category.name}
-            secondary={
-              category.productsCount && category.productsCount > 0 ? (
-                <Typography variant="caption" color="text.secondary">
-                  {category.productsCount} {t("sidebar.products")}
-                </Typography>
-              ) : null
-            }
-          />
-          {!isLeaf && (open ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
-        </ListItemButton>
-      </ListItem>
-      {!isLeaf && (
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {category.children!.map((child: Category) => (
-              <CategoryTreeItem
-                key={child.id}
-                category={child}
-                level={level + 1}
-                onClose={onClose}
-                currentCategoryId={currentCategoryId}
-                currentCategoryAncestors={currentCategoryAncestors}
-              />
-            ))}
-          </List>
-        </Collapse>
-      )}
-    </>
-  );
-}
-
 export default function Sidebar({ open, onClose }: SidebarProps) {
-  const { t } = useTranslation();
-  const theme = useTheme();
-  const { data: categories, isLoading, isError } = useGetCategoriesTreeQuery();
   const navigation = useAppSelector((state) => state.navigation);
 
   let currentCategoryId = null;
@@ -149,7 +20,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   if (navigation.route === "category") {
     currentCategoryId = navigation.data.categoryId as number;
   } else if (navigation.route === "product") {
-    currentProductId = navigation.data.productId as number;
+    currentProductId = navigation.data.productId as string;
   }
 
   // Get product data if we're on a product page
@@ -170,73 +41,39 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   // Extract ancestors for auto-expansion
   const currentCategoryAncestors = currentCategory?.ancestors || [];
 
-  const drawer = (
+  // Mobile drawer content (categories tree only, no FilterSidebar)
+  const mobileDrawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          px: 2,
-          py: 1,
-          borderBottom: 1,
-          borderColor: "divider",
-        }}
-      >
-        <Typography variant="h6" component="div">
-          {t("sidebar.categories")}
-        </Typography>
-        <IconButton onClick={onClose} sx={{ display: { sm: "none" } }}>
-          {theme.direction === "rtl" ? (
-            <ChevronRightIcon />
-          ) : (
-            <ChevronLeftIcon />
-          )}
-        </IconButton>
-      </Box>
-      <Box sx={{ flexGrow: 1, overflow: "auto" }}>
-        {isLoading ? (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t("sidebar.loadingCategories")}
-            </Typography>
-          </Box>
-        ) : isError ? (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="body2" color="error">
-              {t("sidebar.errorLoadingCategories")}
-            </Typography>
-          </Box>
-        ) : (
-          <List>
-            {categories?.map((category) => (
-              <CategoryTreeItem
-                key={category.id}
-                category={category}
-                level={0}
-                onClose={onClose}
-                currentCategoryId={currentCategoryId}
-                currentCategoryAncestors={currentCategoryAncestors}
-              />
-            ))}
-          </List>
-        )}
-      </Box>
-      <FilterSidebar
-        categoryId={
-          currentCategoryId ? (currentCategoryId as number) : null
-        }
+      <CategoriesTree
+        onClose={onClose}
+        currentCategoryId={currentCategoryId}
+        currentCategoryAncestors={currentCategoryAncestors}
       />
+    </Box>
+  );
+
+  // Desktop sidebar content (categories tree + FilterSidebar)
+  const desktopSidebarContent = (
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <CategoriesTree
+        onClose={onClose}
+        currentCategoryId={currentCategoryId}
+        currentCategoryAncestors={currentCategoryAncestors}
+      />
+      <Box sx={{ display: { xs: "none", sm: "block" } }}>
+        <FilterSidebar
+          categoryId={currentCategoryId ? (currentCategoryId as number) : null}
+        />
+      </Box>
     </Box>
   );
 
   return (
     <Box
       component="nav"
-      sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-      aria-label="mailbox folders"
+      sx={{ width: { sm: layoutMath.sidebarWidth }, flexShrink: { sm: 0 } }}
     >
-      {/* Mobile only drawer  */}
+      {/* Mobile only drawer */}
       <Drawer
         variant="temporary"
         anchor="left"
@@ -249,24 +86,26 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width: drawerWidth,
+            width: layoutMath.sidebarWidth,
           },
         }}
       >
-        {drawer}
+        {mobileDrawerContent}
       </Drawer>
-      {/* Drawer for bigger screens */}
-      <Drawer
-        variant="permanent"
+      {/* Desktop sidebar - HTML block instead of Drawer */}
+      <Box
+        component="aside"
         sx={{
           display: { xs: "none", sm: "block" },
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
+          width: layoutMath.sidebarWidth,
+          boxSizing: "border-box",
+          borderColor: "divider",
+          backgroundColor: "background.paper",
+          zIndex: (theme) => theme.zIndex.drawer,
         }}
-        open
       >
-        <Toolbar />
-        {drawer}
-      </Drawer>
+        {desktopSidebarContent}
+      </Box>
     </Box>
   );
 }
