@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Outlet } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
-import type { } from "@mui/material/themeCssVarsAugmentation";
+import type {} from "@mui/material/themeCssVarsAugmentation";
 import AppTheme from "@/theme/AppTheme";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -10,6 +10,8 @@ import Sidebar from "@/theme/components/Sidebar";
 import Navbar from "@/theme/components/Navbar";
 import Breadcrumb from "@/theme/components/Breadcrumb";
 import { useRouteChange } from "@/features/navigation/useRouteChange";
+
+import { layoutMath } from "../themePrimitives";
 
 // const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
 //   margin: theme.spacing(1, 0),
@@ -21,7 +23,6 @@ import { useRouteChange } from "@/features/navigation/useRouteChange";
 //     alignItems: 'center',
 //   },
 // }))
-const drawerWidth = 280;
 
 export default function DefaultLayout() {
   useRouteChange();
@@ -41,24 +42,27 @@ export default function DefaultLayout() {
       <CssBaseline enableColorScheme />
       <Box sx={{ display: "flex" }}>
         <Navbar
-          /* drawerWidth={drawerWidth} */ onMenuClick={handleDrawerToggle}
+          /* layoutMath.sidebarWidth={layoutMath.sidebarWidth} */ onMenuClick={
+            handleDrawerToggle
+          }
         />
-
-        <Sidebar open={sidebarOpen} onClose={handleDrawerClose} />
 
         <Box
           component="main"
           sx={{
             flexGrow: 1,
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            width: { sm: `calc(100% - ${layoutMath.sidebarWidth}px)` },
+            maxWidth: layoutMath.maxWidth,
+            mx: "auto",
+            display: "flex",
+            flexDirection: "row",
           }}
         >
           <Toolbar />
+          <Sidebar open={sidebarOpen} onClose={handleDrawerClose} />
           <Box
             sx={{
               width: "100%",
-              maxWidth: { sm: "100%", md: "1700px" },
-              mx: "auto",
               px: 2,
             }}
           >
