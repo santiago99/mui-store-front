@@ -1,13 +1,8 @@
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import CardActionArea from "@mui/material/CardActionArea";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
 import { Link as RouterLink } from "react-router-dom";
 
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { Product } from "@/features/product/productApi";
 import { useCart } from "@/features/cart/useCart";
 import { useTranslation } from "react-i18next";
@@ -39,59 +34,51 @@ export default function ProductCard(props: ProductCardProps) {
     }
   };
 
+  const imageSrc =
+    product.imageUrl.length > 0 ? product.imageUrl : "/assets/no-photo.jpeg";
+
   return (
-    <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <CardActionArea
-        component={RouterLink}
+    <Card className="flex h-full flex-col overflow-hidden">
+      <RouterLink
         to={`/product/${product.id}`}
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-        }}
+        className="flex flex-1 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <CardMedia
-          component="img"
-          image={
-            product.imageUrl.length > 0
-              ? product.imageUrl
-              : "/assets/no-photo.jpeg"
-          }
-          alt={product.title}
-          sx={{ height: 200, objectFit: "cover" }}
-        />
-        <CardContent sx={{ flexGrow: 1, width: "100%" }}>
-          <Stack spacing={1}>
-            <Typography gutterBottom variant="subtitle1" component="div" noWrap>
-              {product.title}
-            </Typography>
-            <Typography variant="h6" color="text.primary">
-              {formatPriceRub(product.price)}
-            </Typography>
-          </Stack>
+        <div className="relative h-52 w-full overflow-hidden bg-muted">
+          <img
+            src={imageSrc}
+            alt={product.title}
+            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+            loading="lazy"
+          />
+        </div>
+        <CardContent className="flex flex-1 flex-col gap-2 p-4">
+          <p className="truncate text-base font-medium text-foreground">
+            {product.title}
+          </p>
+          <p className="text-lg font-semibold text-foreground">
+            {formatPriceRub(product.price)}
+          </p>
         </CardContent>
-      </CardActionArea>
-      <CardActions
-        sx={{ p: 1, pt: 0, gap: 1, justifyContent: "space-between" }}
-      >
-        <Button
-          size="small"
-          variant="text"
-          component={RouterLink}
+      </RouterLink>
+      <CardFooter className="flex items-center justify-between border-t px-4 py-3">
+        <RouterLink
           to={`/product/${product.id}`}
+          className={cn(
+            buttonVariants({ variant: "link", size: "sm" }),
+            "px-0"
+          )}
         >
           {t("product.learnMore")}
-        </Button>
+        </RouterLink>
         <Button
-          size="small"
-          variant="contained"
+          size="sm"
+          className="px-4"
           onClick={handleAddToCart}
           disabled={isAddingToCart}
         >
           {isAddingToCart ? t("product.adding") : t("product.addToCartSmall")}
         </Button>
-      </CardActions>
+      </CardFooter>
     </Card>
   );
 }

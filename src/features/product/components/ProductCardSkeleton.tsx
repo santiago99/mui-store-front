@@ -1,28 +1,17 @@
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import Skeleton from "@mui/material/Skeleton";
-import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 export default function ProductCardSkeleton() {
   return (
-    <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Skeleton variant="rectangular" height={200} animation="wave" />
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Stack spacing={1}>
-          <Skeleton variant="text" width="80%" height={24} />
-          <Skeleton variant="text" width="40%" height={28} />
-        </Stack>
+    <Card className="flex h-full flex-col overflow-hidden">
+      <div className="h-52 w-full bg-muted animate-pulse" />
+      <CardContent className="flex flex-1 flex-col gap-3 p-4">
+        <div className="h-4 w-3/4 rounded bg-muted animate-pulse" />
+        <div className="h-6 w-1/3 rounded bg-muted animate-pulse" />
       </CardContent>
-      <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
-        <Button size="small" disabled>
-          <Skeleton variant="text" width={80} />
-        </Button>
-        <Button size="small" disabled>
-          <Skeleton variant="text" width={90} />
-        </Button>
-      </CardActions>
+      <CardFooter className="flex items-center justify-between border-t px-4 py-3">
+        <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+        <div className="h-9 w-24 rounded-md bg-muted animate-pulse" />
+      </CardFooter>
     </Card>
   );
 }
