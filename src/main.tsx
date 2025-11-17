@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 //import { apiSlice } from "@/features/api/apiSlice";
 
+import "./index.css";
 import App from "./App.tsx";
 import "./i18n/config";
 

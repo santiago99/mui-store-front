@@ -1,18 +1,5 @@
-import React, { useState } from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Avatar from "@mui/material/Avatar";
-import Divider from "@mui/material/Divider";
-import Badge from "@mui/material/Badge";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import Link from "@mui/material/Link";
-import Box from "@mui/material/Box";
-import { AccountCircle, ShoppingCart } from "@mui/icons-material";
-
+import { UserCircle, ShoppingCart, Menu as MenuIcon } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import {
   selectCurrentUser,
@@ -25,18 +12,26 @@ import {
   toggleDrawer,
 } from "@/features/cart/cartSlice";
 import { useCart } from "@/features/cart/useCart";
-import { getCartIconAnimationStyles } from "@/features/cart/cartAnimations";
 import CartDrawer from "@/features/cart/CartDrawer";
 import LanguageSwitcher from "@/features/language/LanguageSwitcher";
+import CategoriesMegamenu from "./CategoriesMegamenu";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface NavbarProps {
-  // drawerWidth: number;
   onMenuClick: () => void;
 }
 
-export default function Navbar({
-  /* drawerWidth,  */ onMenuClick,
-}: NavbarProps) {
+export default function Navbar({ onMenuClick }: NavbarProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -45,20 +40,10 @@ export default function Navbar({
   const animationTrigger = useAppSelector(selectAnimationTrigger);
   const [logout] = useLogoutMutation();
   const { count } = useCart();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleLogout = async () => {
     try {
       await logout().unwrap();
-      handleMenuClose();
       navigate("/");
     } catch (err) {
       console.error("Logout failed:", err);
@@ -66,17 +51,14 @@ export default function Navbar({
   };
 
   const handleProfileClick = () => {
-    handleMenuClose();
     navigate("/user/profile");
   };
 
   const handleLoginClick = () => {
-    handleMenuClose();
     navigate("/user/login");
   };
 
   const handleRegisterClick = () => {
-    handleMenuClose();
     navigate("/user/register");
   };
 
@@ -85,141 +67,161 @@ export default function Navbar({
   };
 
   return (
-    <AppBar
-      position="fixed"
-      sx={{
-        // width: { sm: `calc(100% - ${drawerWidth}px)` },
-        // ml: { sm: `${drawerWidth}px` },
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-      }}
-    >
-      <Toolbar>
-        <IconButton
-          color="inherit"
-          aria-label={t("navbar.openDrawer")}
-          edge="start"
-          onClick={onMenuClick}
-          sx={{ mr: 2, display: { sm: "none" } }}
+    <>
+      <header
+        className="fixed top-0 left-0 right-0 z-50 w-full border-b border-border bg-background text-foreground shadow-sm"
+        style={{
+          backgroundColor: "#ffffff",
+          color: "#09090b",
+          borderBottom: "1px solid hsl(214.3, 31.8%, 91.4%)",
+          boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          width: "100%",
+          zIndex: 50,
+        }}
+      >
+        <div
+          className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4"
+          style={{
+            marginLeft: "auto",
+            marginRight: "auto",
+            display: "flex",
+            height: "4rem",
+            maxWidth: "1536px",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+          }}
         >
-          ☰
-        </IconButton>
-        <Link component={RouterLink} to="/">
-          <Typography
-            variant="h6"
-            noWrap
-            component="span"
-            sx={{ color: "white" }}
+          {/* Left side: Burger (mobile) + Logo + Categories (desktop) */}
+          <div
+            className="flex items-center gap-4"
+            style={{ display: "flex", alignItems: "center", gap: "1rem" }}
           >
-            MUI Store
-          </Typography>
-        </Link>
+            {/* Mobile burger button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={onMenuClick}
+              aria-label={t("navbar.openDrawer")}
+            >
+              <MenuIcon className="h-5 w-5" />
+            </Button>
 
-        <Box sx={{ flexGrow: 1 }} />
+            {/* Logo */}
+            <RouterLink
+              to="/"
+              className="flex items-center space-x-2 no-underline"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                textDecoration: "none",
+              }}
+            >
+              <span
+                className="text-xl font-bold text-foreground"
+                style={{
+                  fontSize: "1.25rem",
+                  fontWeight: 700,
+                  color: "#09090b",
+                }}
+              >
+                MUI Store
+              </span>
+            </RouterLink>
 
-        {/* Language Switcher */}
-        <LanguageSwitcher />
+            {/* Categories Megamenu - Desktop only */}
+            <div className="hidden md:block">
+              <CategoriesMegamenu />
+            </div>
+          </div>
 
-        {/* Cart Icon */}
-        <IconButton
-          size="large"
-          aria-label={t("navbar.shoppingCart")}
-          onClick={() => dispatch(toggleDrawer())}
-          color="inherit"
-          sx={getCartIconAnimationStyles(animationTrigger)}
-        >
-          <Badge badgeContent={count} color="secondary">
-            <ShoppingCart />
-          </Badge>
-        </IconButton>
+          {/* Right side: Language + Cart + User Menu */}
+          <div
+            className="flex items-center gap-2"
+            style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+          >
+            {/* Language Switcher */}
+            <LanguageSwitcher />
 
-        {/* User Menu */}
-        <IconButton
-          size="large"
-          aria-label={t("navbar.accountOfCurrentUser")}
-          aria-controls="user-menu"
-          aria-haspopup="true"
-          onClick={handleMenuOpen}
-          color="inherit"
-        >
-          {isAuthenticated && currentUser ? (
-            <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.main" }}>
-              {currentUser.name.charAt(0).toUpperCase()}
-            </Avatar>
-          ) : (
-            <AccountCircle />
-          )}
-        </IconButton>
-        <Menu
-          id="user-menu"
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          keepMounted
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          slotProps={{
-            paper: {
-              elevation: 0,
-              sx: {
-                overflow: "visible",
-                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                mt: 0,
-                "& .MuiAvatar-root": {
-                  width: 32,
-                  height: 32,
-                  ml: -0.5,
-                  mr: 1,
-                },
-                "&::before": {
-                  content: '""',
-                  display: "block",
-                  position: "absolute",
-                  top: 0,
-                  right: 23,
-                  width: 10,
-                  height: 10,
-                  bgcolor: "background.paper",
-                  transform: "translateY(-50%) rotate(45deg)",
-                  zIndex: 0,
-                },
-              },
-            },
-          }}
-        >
-          {isAuthenticated && currentUser
-            ? [
-                <MenuItem key="username" disabled>
-                  <Typography variant="body2" color="text.secondary">
-                    {currentUser.name}
-                  </Typography>
-                </MenuItem>,
-                <Divider key="divider" />,
-                <MenuItem key="profile" onClick={handleProfileClick}>
-                  {t("common.profile")}
-                </MenuItem>,
-                <MenuItem key="logout" onClick={handleLogout}>
-                  {t("common.logout")}
-                </MenuItem>,
-              ]
-            : [
-                <MenuItem key="login" onClick={handleLoginClick}>
-                  {t("common.login")}
-                </MenuItem>,
-                <MenuItem key="register" onClick={handleRegisterClick}>
-                  {t("common.register")}
-                </MenuItem>,
-              ]}
-        </Menu>
-      </Toolbar>
+            {/* Cart Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => dispatch(toggleDrawer())}
+              aria-label={t("navbar.shoppingCart")}
+              className={cn(
+                "relative",
+                animationTrigger > 0 && "animate-[bounce_0.3s_ease-in-out]"
+              )}
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {count > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="absolute -right-1 -top-1 h-5 min-w-[20px] rounded-full p-0 flex items-center justify-center text-xs px-1"
+                >
+                  {count > 99 ? "99+" : count}
+                </Badge>
+              )}
+            </Button>
+
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("navbar.accountOfCurrentUser")}
+                >
+                  {isAuthenticated && currentUser ? (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                      {currentUser.name.charAt(0).toUpperCase()}
+                    </div>
+                  ) : (
+                    <UserCircle className="h-5 w-5" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {isAuthenticated && currentUser ? (
+                  <>
+                    <DropdownMenuLabel>{currentUser.name}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleProfileClick}>
+                      {t("common.profile")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      {t("common.logout")}
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem onClick={handleLoginClick}>
+                      {t("common.login")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleRegisterClick}>
+                      {t("common.register")}
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </header>
+
+      {/* Spacer for fixed header */}
+      <div className="h-16" style={{ height: "4rem" }} />
 
       {/* Cart Drawer */}
       <CartDrawer onNavigateToCart={handleCartClick} />
-    </AppBar>
+    </>
   );
 }

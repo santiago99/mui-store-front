@@ -4,7 +4,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import type {} from "@mui/material/themeCssVarsAugmentation";
 import AppTheme from "@/theme/AppTheme";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
 
 import Sidebar from "@/theme/components/Sidebar";
 import Navbar from "@/theme/components/Navbar";
@@ -40,7 +39,7 @@ export default function DefaultLayout() {
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />
-      <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: "flex", mt: "4rem" }}>
         <Navbar
           /* layoutMath.sidebarWidth={layoutMath.sidebarWidth} */ onMenuClick={
             handleDrawerToggle
@@ -58,7 +57,6 @@ export default function DefaultLayout() {
             flexDirection: "row",
           }}
         >
-          <Toolbar />
           <Sidebar open={sidebarOpen} onClose={handleDrawerClose} />
           <Box
             sx={{

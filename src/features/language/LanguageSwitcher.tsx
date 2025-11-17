@@ -1,17 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import { Languages, Check } from "lucide-react";
 import {
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from "@mui/material";
-import {
-  Language as LanguageIcon,
-  Check as CheckIcon,
-} from "@mui/icons-material";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
@@ -20,63 +16,33 @@ const languages = [
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleLanguageChange = (languageCode: string) => {
     i18n.changeLanguage(languageCode);
-    handleClose();
   };
 
   return (
-    <>
-      <IconButton
-        size="large"
-        aria-label="change language"
-        aria-controls="language-menu"
-        aria-haspopup="true"
-        onClick={handleClick}
-        color="inherit"
-        sx={{ mr: 1 }}
-      >
-        <LanguageIcon />
-      </IconButton>
-      <Menu
-        id="language-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label="change language">
+          <Languages className="h-5 w-5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
         {languages.map((language) => (
-          <MenuItem
+          <DropdownMenuItem
             key={language.code}
             onClick={() => handleLanguageChange(language.code)}
-            selected={language.code === i18n.language}
+            className="flex items-center gap-2"
           >
-            <ListItemIcon>
-              <Typography variant="h6">{language.flag}</Typography>
-            </ListItemIcon>
-            <ListItemText primary={language.name} />
-            {language.code === i18n.language && <CheckIcon fontSize="small" />}
-          </MenuItem>
+            <span className="text-lg">{language.flag}</span>
+            <span>{language.name}</span>
+            {language.code === i18n.language && (
+              <Check className="ml-auto h-4 w-4" />
+            )}
+          </DropdownMenuItem>
         ))}
-      </Menu>
-    </>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
