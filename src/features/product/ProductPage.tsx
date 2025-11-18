@@ -1,24 +1,14 @@
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { useState } from "react";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
-import Skeleton from "@mui/material/Skeleton";
-import Alert from "@mui/material/Alert";
-import Divider from "@mui/material/Divider";
-import Snackbar from "@mui/material/Snackbar";
-import Link from "@mui/material/Link";
 
 import { useGetProductQuery } from "@/app/apiSlice";
 import { useCart } from "@/features/cart/useCart";
 import { useTranslation } from "react-i18next";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Toast } from "@/components/ui/toast";
 
 function formatPriceRub(price: number): string {
   return new Intl.NumberFormat("ru-RU", {
@@ -61,46 +51,57 @@ export default function ProductPage() {
 
   if (error) {
     return (
-      <Container sx={{ py: 4 }}>
-        <Alert severity="error">{t("product.failedToLoadProduct")}</Alert>
-      </Container>
+      <div className="container mx-auto py-16">
+        <Alert className="border-destructive/30 bg-destructive/10 text-destructive">
+          <AlertDescription>
+            {t("product.failedToLoadProduct")}
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
   return (
-    <Container sx={{ py: 4 }}>
-      <Grid container spacing={4}>
+    <div className="container mx-auto py-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Image */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card>
-            <CardMedia
-              component="img"
-              image={
+        <div>
+          <Card className="overflow-hidden">
+            <img
+              src={
                 product?.imageUrl && product.imageUrl.length > 0
                   ? product.imageUrl
                   : "/assets/no-photo.jpeg"
               }
               alt={product?.title || "Product image"}
-              sx={{
-                height: { xs: 300, md: 500 },
-                objectFit: "cover",
-              }}
+              className="w-full h-[300px] md:h-[500px] object-cover"
             />
           </Card>
-        </Grid>
+        </div>
 
         {/* Product Details and Add to Cart */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Stack spacing={3}>
+        <div>
+          <div className="flex flex-col gap-6">
             {/* Product Title */}
-            <Box>
-              <Typography variant="h4" component="h1" gutterBottom>
+            <div>
+              {/* Brand Name */}
+              {isLoading ? (
+                <div className="h-4 w-24 rounded bg-muted animate-pulse mb-2" />
+              ) : product?.brand ? (
+                <RouterLink
+                  to={`/brands/${product.brand.slug}`}
+                  className="text-sm text-muted-foreground font-medium hover:text-primary hover:underline block mb-2"
+                >
+                  {product.brand.name}
+                </RouterLink>
+              ) : null}
+              <h1 className="text-3xl font-semibold mb-4">
                 {isLoading ? (
-                  <Skeleton variant="text" width="100%" height={48} />
+                  <div className="h-12 w-full rounded bg-muted animate-pulse" />
                 ) : (
                   product?.title
                 )}
-              </Typography>
+              </h1>
 
               {/* Category Chip */}
               {/* {product?.category && (
@@ -112,55 +113,53 @@ export default function ProductPage() {
                   sx={{ mb: 2 }}
                 />
               )} */}
-            </Box>
+            </div>
 
             {/* Price */}
-            <Box>
-              <Typography variant="h3" color="primary" fontWeight="bold">
+            <div>
+              <h2 className="text-4xl font-bold text-primary">
                 {isLoading ? (
-                  <Skeleton variant="text" width={200} height={48} />
+                  <div className="h-12 w-48 rounded bg-muted animate-pulse" />
                 ) : product?.price ? (
                   formatPriceRub(product.price)
                 ) : (
                   ""
                 )}
-              </Typography>
-            </Box>
+              </h2>
+            </div>
 
-            <Divider />
+            <hr className="border-border" />
 
             {/* Add to Cart Form */}
-            <Card variant="outlined">
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
+            <Card className="border">
+              <CardContent className="pt-6">
+                <h3 className="text-xl font-semibold mb-4">
                   {t("product.addToCart")}
-                </Typography>
+                </h3>
 
-                <Stack spacing={2} sx={{ mt: 2 }}>
+                <div className="flex flex-col gap-4 mt-4">
                   {/* Quantity Input */}
-                  <Box>
-                    <Typography variant="subtitle2" gutterBottom>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
                       {t("common.quantity")}
-                    </Typography>
-                    <TextField
+                    </label>
+                    <Input
                       type="number"
                       value={quantity}
                       onChange={handleQuantityChange}
-                      inputProps={{ min: 1 }}
-                      size="small"
-                      sx={{ width: 120 }}
+                      min={1}
+                      className="w-32"
                       disabled={isLoading}
                     />
-                  </Box>
+                  </div>
 
                   {/* Add to Cart Button */}
                   <Button
-                    variant="contained"
-                    size="large"
-                    fullWidth
+                    variant="default"
+                    size="lg"
+                    className="w-full py-6"
                     onClick={handleAddToCart}
                     disabled={isLoading || isAddingToCart}
-                    sx={{ py: 1.5 }}
                   >
                     {isAddingToCart
                       ? t("product.adding")
@@ -169,126 +168,121 @@ export default function ProductPage() {
 
                   {/* Buy Now Button */}
                   <Button
-                    variant="outlined"
-                    size="large"
-                    fullWidth
+                    variant="outline"
+                    size="lg"
+                    className="w-full py-6"
                     disabled={isLoading}
-                    sx={{ py: 1.5 }}
                   >
                     {t("product.buyNow")}
                   </Button>
-                </Stack>
+                </div>
               </CardContent>
             </Card>
-          </Stack>
-        </Grid>
-      </Grid>
+          </div>
+        </div>
+      </div>
 
       {/* Product Description and Properties - Full Width */}
-      <Box sx={{ mt: 4 }}>
-        <Stack spacing={4}>
+      <div className="mt-8">
+        <div className="flex flex-col gap-6">
           {/* Product Description */}
           {(!isLoading && product?.description) || isLoading ? (
-            <Card variant="outlined">
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
+            <Card className="border">
+              <CardContent className="pt-6">
+                <h3 className="text-xl font-semibold mb-4">
                   {t("common.description")}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
+                </h3>
+                <p className="text-base text-muted-foreground">
                   {isLoading ? (
-                    <Skeleton variant="text" width="100%" height={60} />
+                    <div className="h-16 w-full rounded bg-muted animate-pulse" />
                   ) : (
                     product?.description || ""
                   )}
-                </Typography>
+                </p>
               </CardContent>
             </Card>
           ) : null}
 
           {/* Additional Information */}
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
+          <Card className="border">
+            <CardContent className="pt-6">
+              <h3 className="text-xl font-semibold mb-4">
                 {t("product.additionalInformation")}
-              </Typography>
-              <Stack spacing={2}>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">
-                    SKU:
-                  </Typography>
-                  <Typography variant="body2">
-                    {isLoading ? <Skeleton width={60} /> : product?.sku || "—"}
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">
-                    Brand:
-                  </Typography>
-                  <Typography variant="body2">
+              </h3>
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">SKU:</span>
+                  <span className="text-sm">
                     {isLoading ? (
-                      <Skeleton width={100} />
+                      <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+                    ) : (
+                      product?.sku || "—"
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Brand:</span>
+                  <span className="text-sm">
+                    {isLoading ? (
+                      <div className="h-4 w-24 rounded bg-muted animate-pulse" />
                     ) : product?.brand ? (
-                      <Link
-                        component={RouterLink}
+                      <RouterLink
                         to={`/brands/${product.brand.slug}`}
-                        underline="hover"
+                        className="text-primary hover:underline"
                       >
                         {product.brand.name}
-                      </Link>
+                      </RouterLink>
                     ) : (
                       "—"
                     )}
-                  </Typography>
-                </Box>
+                  </span>
+                </div>
                 {product?.fields && product.fields.length > 0 && (
                   <>
-                    <Divider />
+                    <hr className="border-border" />
                     {product.fields.map((field) => (
-                      <Box
+                      <div
                         key={field.id}
-                        display="flex"
-                        justifyContent="space-between"
+                        className="flex justify-between items-center"
                       >
-                        <Typography variant="body2" color="text.secondary">
+                        <span className="text-sm text-muted-foreground">
                           {field.name}:
-                        </Typography>
-                        <Typography variant="body2">
+                        </span>
+                        <span className="text-sm">
                           {field.type === "integer"
                             ? typeof field.value === "number"
                               ? field.value
                               : parseInt(field.value as string, 10)
                             : String(field.value)}
-                        </Typography>
-                      </Box>
+                        </span>
+                      </div>
                     ))}
                   </>
                 )}
-                {/* <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">
-                    Category:
-                  </Typography>
-                  <Typography variant="body2">
+                {/* <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Category:</span>
+                  <span className="text-sm">
                     {isLoading ? (
-                      <Skeleton width={100} />
+                      <div className="h-4 w-24 rounded bg-muted animate-pulse" />
                     ) : (
                       product?.category?.name || "N/A"
                     )}
-                  </Typography>
-                </Box> */}
-              </Stack>
+                  </span>
+                </div> */}
+              </div>
             </CardContent>
           </Card>
-        </Stack>
-      </Box>
+        </div>
+      </div>
 
-      {/* Success Snackbar */}
-      <Snackbar
+      {/* Success Toast */}
+      <Toast
         open={showSuccessSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setShowSuccessSnackbar(false)}
-        message={t("product.productAddedToCart")}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      />
-    </Container>
+        onOpenChange={setShowSuccessSnackbar}
+        duration={3000}
+      >
+        {t("product.productAddedToCart")}
+      </Toast>
+    </div>
   );
 }

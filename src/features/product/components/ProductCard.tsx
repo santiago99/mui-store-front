@@ -1,7 +1,7 @@
 import { Link as RouterLink } from "react-router-dom";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/features/product/productApi";
 import { useCart } from "@/features/cart/useCart";
@@ -51,16 +51,21 @@ export default function ProductCard(props: ProductCardProps) {
             loading="lazy"
           />
         </div>
-        <CardContent className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          {product.brand && (
+            <p className="text-xs text-muted-foreground font-medium">
+              {product.brand.name}
+            </p>
+          )}
           <p className="truncate text-base font-medium text-foreground">
             {product.title}
           </p>
           <p className="text-lg font-semibold text-foreground">
             {formatPriceRub(product.price)}
           </p>
-        </CardContent>
+        </div>
       </RouterLink>
-      <CardFooter className="flex items-center justify-between border-t px-4 py-3">
+      <div className="flex items-center justify-between border-t px-4 py-3">
         <RouterLink
           to={`/product/${product.id}`}
           className={cn(
@@ -78,7 +83,7 @@ export default function ProductCard(props: ProductCardProps) {
         >
           {isAddingToCart ? t("product.adding") : t("product.addToCartSmall")}
         </Button>
-      </CardFooter>
+      </div>
     </Card>
   );
 }
