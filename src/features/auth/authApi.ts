@@ -117,4 +117,9 @@ export const {
   useUpdatePasswordMutation,
   useRequestPasswordResetMutation,
   useResetPasswordMutation,
+  util: { prefetch },
 } = authApi;
+
+export const prefetchCurrentUser = () => {
+  return authApi.util.prefetch("getCurrentUser", undefined, { force: true });
+};
