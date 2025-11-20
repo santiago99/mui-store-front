@@ -7,23 +7,24 @@ import IconButton from "@mui/material/IconButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useTranslation } from "react-i18next";
+import { useAppSelector } from "@/app/hooks";
 import { useGetCategoriesTreeQuery } from "@/app/apiSlice";
+import { selectActiveCategoryId } from "@/features/navigation/navigationSlice";
 import type { Category } from "@/features/category/categoryApi";
 import CategoryTreeItem from "./CategoryTreeItem";
 
 export interface CategoriesTreeProps {
   onClose: () => void;
-  currentCategoryId?: string | number | null;
-  currentCategoryAncestors?: Array<{ id: string | number }>;
 }
 
 export default function CategoriesTree({
   onClose,
-  currentCategoryId,
-  currentCategoryAncestors,
 }: CategoriesTreeProps) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const navigation = useAppSelector((state) => state.navigation);
+  const currentCategoryId = useAppSelector(selectActiveCategoryId);
+  const ancestors = navigation.ancestors || [];
   const { data: categories, isLoading, isError } = useGetCategoriesTreeQuery();
 
   return (
@@ -72,7 +73,7 @@ export default function CategoriesTree({
                 level={0}
                 onClose={onClose}
                 currentCategoryId={currentCategoryId}
-                currentCategoryAncestors={currentCategoryAncestors}
+                currentCategoryAncestors={ancestors}
               />
             ))}
           </List>

@@ -39,35 +39,43 @@ export const router = createBrowserRouter([
       {
         path: "category/:categoryId",
         element: <CategoryPage />,
+        handle: { breadcrumb: "dynamic" },
         //loader: categoryPreloader,
       },
       {
         path: "cart",
         element: <CartPage />,
+        handle: { breadcrumb: "breadcrumb.cart" },
       },
       {
         path: "merge-cart",
         element: <MergeCartPage />,
+        handle: { breadcrumb: "breadcrumb.mergeCart" },
       },
       {
         path: "product/:productId",
         element: <ProductPage />,
+        handle: { breadcrumb: "dynamic" },
       },
       {
         path: "user/login",
         element: <LoginPage />,
+        handle: { breadcrumb: "breadcrumb.login" },
       },
       {
         path: "user/register",
         element: <RegisterPage />,
+        handle: { breadcrumb: "breadcrumb.register" },
       },
       {
         path: "user/forgot-password",
         element: <ForgotPasswordPage />,
+        handle: { breadcrumb: "breadcrumb.forgotPassword" },
       },
       {
         path: "user/reset-password",
         element: <ResetPasswordPage />,
+        handle: { breadcrumb: "breadcrumb.resetPassword" },
       },
     ],
   },
@@ -83,6 +91,7 @@ export const router = createBrowserRouter([
       {
         path: "profile",
         element: <ProfilePage />,
+        handle: { breadcrumb: "breadcrumb.profile" },
       },
       /* {
         path: "orders",

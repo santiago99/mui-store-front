@@ -178,4 +178,5 @@ export const {
   useGetCategoriesTreeQuery,
   useGetCategoryQuery,
   useGetCategoryFiltersQuery,
+  util: { prefetch },
 } = apiSlice;

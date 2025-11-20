@@ -9,6 +9,8 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useAppSelector } from "@/app/hooks";
+import { selectIsActive } from "@/features/navigation/navigationSlice";
 import type { Category } from "@/features/category/categoryApi";
 
 type ListItemLinkProps = {
@@ -34,9 +36,8 @@ export default function CategoryTreeItem({
 }: CategoryTreeItemProps) {
   const { t } = useTranslation();
   const isLeaf = category.isLeaf;
-  const isActive =
-    currentCategoryId &&
-    currentCategoryId.toString() === category.id.toString();
+  const categoryIdNumber = typeof category.id === "string" ? parseInt(category.id, 10) : category.id;
+  const isActive = useAppSelector(selectIsActive(categoryIdNumber));
 
   // Check if this category should be expanded based on ancestors
   const shouldBeExpanded =
