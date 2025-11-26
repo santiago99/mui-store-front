@@ -7,7 +7,7 @@ export interface BreadcrumbItem {
 }
 
 export interface AncestorItem {
-  id: string | number;
+  id: number;
   name: string;
 }
 
@@ -31,13 +31,13 @@ const navigationSlice = createSlice({
   name: "navigation",
   initialState,
   reducers: {
-    setPath: (_state, action: PayloadAction<NavigationState>) => {
+    setNavigationState: (_state, action: PayloadAction<NavigationState>) => {
       return action.payload;
     },
   },
 });
 
-export const { setPath } = navigationSlice.actions;
+export const { setNavigationState } = navigationSlice.actions;
 export const selectNavigationData = (state: RootState) => state.navigation;
 export const isFront = (state: RootState) =>
   state.navigation.route === "frontpage";

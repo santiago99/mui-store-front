@@ -1,6 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type {
+  QueryReturnValue,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+} from "@reduxjs/toolkit/query";
 import type { Product } from "@/features/product/productApi";
 import type { Category, Filter } from "@/features/category/categoryApi";
+import {
+  upsertCategories,
+  upsertCategory,
+  categoriesSelectors,
+} from "@/features/category/categoriesSlice";
+import type { RootState } from "./store";
 
 export interface PaginatedResponseMeta {
   current_page: number;
@@ -46,6 +57,33 @@ async function fetchCsrfToken(): Promise<void> {
   } catch (error) {
     console.warn("Failed to fetch CSRF token:", error);
   }
+}
+
+// Helper function to flatten category tree recursively
+function flattenCategoryTree(categories: Category[]): Category[] {
+  const result: Category[] = [];
+
+  function traverse(category: Category, parentId: number | null = null) {
+    // Create a normalized flat category without nested structures
+    // Children are stored separately and can be retrieved via selectCategoryChildren selector
+    const flatCategory: Category = {
+      ...category,
+      parentId: parentId,
+      children: undefined, // Remove children - stored separately, use selectCategoryChildren selector
+      ancestors: undefined, // Remove ancestors - computed via selectCategoryAncestors selector
+    };
+    result.push(flatCategory);
+
+    // Recursively process children
+    if (category.children && category.children.length > 0) {
+      category.children.forEach((child) => {
+        traverse(child, category.id);
+      });
+    }
+  }
+
+  categories.forEach((category) => traverse(category));
+  return result;
 }
 
 export const apiSlice = createApi({
@@ -127,11 +165,53 @@ export const apiSlice = createApi({
         result ? [{ type: "Product" as const, id: result.id }] : [],
     }),
     getCategory: builder.query<Category, number>({
-      query: (id) => ({
-        url: `/categories/${id}`,
-      }),
-      transformResponse: (response: unknown): Category =>
-        (response as SingleDataResponse<Category>).data,
+      queryFn: async (
+        id,
+        _queryApi,
+        _extraOptions,
+        baseQuery
+      ): Promise<
+        QueryReturnValue<
+          Category,
+          FetchBaseQueryError,
+          FetchBaseQueryMeta | undefined
+        >
+      > => {
+        // Check cache first
+        const state = _queryApi.getState() as RootState;
+        const cachedCategory: Category | undefined =
+          categoriesSelectors.selectById(state, id);
+
+        if (cachedCategory) {
+          // Return cached category
+          return { data: cachedCategory as Category };
+        }
+
+        // Not in cache, fetch from server
+        const result = await baseQuery({
+          url: `/categories/${id}`,
+        });
+
+        if (result.error) {
+          return result;
+        }
+
+        const category = (result.data as SingleDataResponse<Category>).data;
+
+        // Remove nested structures before storing (normalized flat structure)
+        // Children can be retrieved via selectCategoryChildren selector
+        // Ancestors can be retrieved via selectCategoryAncestors selector
+        const categoryToStore: Category = {
+          ...category,
+          children: undefined, // Remove children - stored separately, use selectCategoryChildren selector
+          ancestors: undefined, // Remove ancestors - computed via selectCategoryAncestors selector
+        };
+
+        // Update cache with fetched category
+        _queryApi.dispatch(upsertCategory(categoryToStore));
+
+        return { data: category };
+      },
       providesTags: (result) =>
         result ? [{ type: "Category" as const, id: result.id }] : [],
     }),
@@ -141,6 +221,16 @@ export const apiSlice = createApi({
       }),
       transformResponse: (response: unknown): Category[] =>
         (response as ListDataResponse<Category>).data,
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          // Flatten the tree and populate the adapter cache
+          const flattened = flattenCategoryTree(data);
+          dispatch(upsertCategories(flattened));
+        } catch {
+          // Ignore errors - the query will handle them
+        }
+      },
       providesTags: (result) =>
         result
           ? [
@@ -158,7 +248,7 @@ export const apiSlice = createApi({
       }),
       transformResponse: (response: unknown): Filter[] =>
         (response as ListDataResponse<Filter>).data,
-      providesTags: (result, error, id) =>
+      providesTags: (result, _error, id) =>
         result
           ? [
               ...result.map((f) => ({

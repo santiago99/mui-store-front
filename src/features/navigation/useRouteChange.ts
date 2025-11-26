@@ -1,82 +1,96 @@
-import { useEffect, useRef } from "react";
+import { useEffect /*, useRef */ } from "react";
 import {
   useLocation,
-  matchPath,
+  useParams,
+  //matchPath,
   useMatches,
   type UIMatch,
 } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { setPath, type NavigationState } from "./navigationSlice";
-import { useGetProductQuery, useGetCategoryQuery } from "@/app/apiSlice";
+
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import { selectCategoryAncestors } from "@/features/category/categoriesSlice";
+import { useGetCategoryQuery, useGetProductQuery } from "@/app/apiSlice";
+import {
+  setNavigationState,
+  type NavigationState,
+  type BreadcrumbItem,
+} from "./navigationSlice";
 
 interface RouteHandle {
   breadcrumb?: string;
+  path?: string;
 }
 
+const extractStaticBreadcrumb = (match: UIMatch, t: TFunction) => {
+  const handle = match.handle as RouteHandle | undefined;
+  if (!handle) return null;
+
+  const bc = handle.breadcrumb;
+  if (!bc) return null;
+
+  if (typeof bc === "string" && bc !== "dynamic") {
+    return { label: t(bc), path: "path" in handle ? handle.path : undefined };
+  }
+  // dynamic routes handled later
+  return null;
+};
+
 export function useRouteChange() {
+  console.log("useRouteChange hook");
   const location = useLocation();
   const matches = useMatches();
-  const dispatch = useDispatch();
+  const params = useParams();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const prevPath = useRef<string | null>(null);
-
-  const categoryMatch = matchPath("/category/:categoryId", location.pathname);
-  const productMatch = matchPath("/product/:productId", location.pathname);
-
-  // Get product data if we're on a product route
-  const productId = productMatch?.params.productId;
-  const { data: product, isLoading: isLoadingProduct } = useGetProductQuery(
-    productId!,
-    {
-      skip: !productId,
-    }
+  //const prevPath = useRef<string | null>(null);
+  let categoryId = null;
+  let productId = null;
+  const isDynamicRoute = matches.some(
+    (match) => (match.handle as RouteHandle)?.breadcrumb === "dynamic"
   );
 
-  // Verify product data matches current productId to avoid stale data
-  const isValidProduct = product && product.id === productId;
+  if (isDynamicRoute) {
+    console.log("dynamic route");
 
-  // Determine categoryId: from category route, or from product's categoryId
-  let categoryId: number | null = null;
-  if (categoryMatch) {
-    const categoryIdParam = categoryMatch.params.categoryId;
-    if (categoryIdParam) {
-      const parsed = parseInt(categoryIdParam, 10);
-      if (!isNaN(parsed)) {
-        categoryId = parsed;
-      }
+    if (params.categoryId) {
+      categoryId = parseInt(params.categoryId);
+      console.log("categoryId", categoryId);
+    } else if (params.productId) {
+      console.log("productId", params.productId);
+      productId = params.productId;
+    } else {
+      console.error("No categoryId or productId found");
     }
-  } else if (isValidProduct && product.categoryId) {
-    const parsed =
-      typeof product.categoryId === "string"
-        ? parseInt(product.categoryId, 10)
-        : product.categoryId;
-    if (!isNaN(parsed)) {
-      categoryId = parsed;
-    }
+  } else {
+    console.log("static route");
+    categoryId = null;
+    productId = null;
   }
 
-  // Get category data if we have a categoryId
-  const { data: category, isLoading: isLoadingCategory } = useGetCategoryQuery(
-    categoryId!,
-    {
-      skip: !categoryId,
-    }
-  );
+  const { data: product } = useGetProductQuery(productId!, {
+    skip: !productId,
+  });
 
-  // Verify category data matches current categoryId to avoid stale data
-  const isValidCategory =
-    category &&
-    categoryId !== null &&
-    (typeof category.id === "string"
-      ? parseInt(category.id, 10)
-      : category.id) === categoryId;
+  if (productId !== null && product && product.categoryId !== null) {
+    console.log("product", product);
+    categoryId = product.categoryId;
+  }
+
+  const { data: category } = useGetCategoryQuery(categoryId!, {
+    skip: !categoryId,
+  });
+
+  const ancestors = useAppSelector((state) =>
+    selectCategoryAncestors(state, categoryId)
+  );
+  console.log("ancestors", ancestors);
 
   useEffect(() => {
-    if (prevPath.current === location.pathname) return;
-    prevPath.current = location.pathname;
+    console.log("useRouteChange effect");
 
-    const navData: NavigationState = {
+    const navState: NavigationState = {
       currentPath: location.pathname,
       route: "static",
       data: {},
@@ -84,115 +98,67 @@ export function useRouteChange() {
       ancestors: [],
     };
 
-    // Handle frontpage
+    // Fill nav stte data depending on the route
     if (location.pathname === "/") {
-      navData.route = "frontpage";
-      navData.breadcrumbs = [];
-      dispatch(setPath(navData));
-      return;
-    }
+      console.log("frontpage route");
+      navState.route = "frontpage";
+    } else if (categoryId !== null) {
+      // Dynamic route (category or product)
+      console.log("dynamic route");
+      navState.data.categoryId = categoryId;
+      navState.ancestors = ancestors;
 
-    // Handle dynamic routes (category/product)
-    if (categoryMatch) {
-      const { categoryId: catId } = categoryMatch.params;
-      const categoryIdNumber = parseInt(catId!, 10);
+      // Create breadcrumbs from ancestors list
+      const breadcrumbs: BreadcrumbItem[] = ancestors?.map((ancestor) => ({
+        label: ancestor.name,
+        path: `/category/${ancestor.id}`,
+      }));
 
-      // Only set navigation state if we have valid category data matching the route
-      if (!isNaN(categoryIdNumber) && isValidCategory && !isLoadingCategory) {
-        navData.route = "category";
-        navData.data = {
-          categoryId: categoryIdNumber,
-        };
-        navData.ancestors = (category!.ancestors || []).map((ancestor) => ({
-          id: ancestor.id,
-          name: ancestor.name,
-        }));
+      if (product !== undefined) {
+        // Product route
+        console.log("product route");
+        navState.route = "product";
+        navState.data.productId = product.id;
 
-        // Build breadcrumbs for category route
-        navData.breadcrumbs = [
-          { path: "/", label: t("breadcrumb.home") },
-          ...(category!.ancestors || []).map((ancestor) => ({
-            path: `/category/${ancestor.id}`,
-            label: ancestor.name,
-          })),
-          { label: category!.name },
-        ];
-        dispatch(setPath(navData));
-        return;
+        // Add category to breadcrumbs
+        breadcrumbs.push({
+          label: category?.name || "",
+          path: `/category/${category?.id}`,
+        });
+        // Add product to breadcrumbs
+        breadcrumbs.push({
+          label: product.title,
+        });
+      } else {
+        // Category route
+        console.log("category route");
+        navState.route = "category";
+        // Add category to breadcrumbs (last in the list without path)
+        breadcrumbs.push({
+          label: category?.name || "",
+        });
       }
-    } else if (productMatch && productId) {
-      // Only set navigation state if we have valid product and category data matching the route
-      if (
-        isValidProduct &&
-        isValidCategory &&
-        !isLoadingProduct &&
-        !isLoadingCategory
-      ) {
-        navData.route = "product";
-        navData.data = {
-          productId: productId,
-          categoryId: categoryId!,
-        };
-        navData.ancestors = (category!.ancestors || []).map((ancestor) => ({
-          id: ancestor.id,
-          name: ancestor.name,
-        }));
-
-        // Build breadcrumbs for product route
-        navData.breadcrumbs = [
-          { path: "/", label: t("breadcrumb.home") },
-          ...(category!.ancestors || []).map((ancestor) => ({
-            path: `/category/${ancestor.id}`,
-            label: ancestor.name,
-          })),
-          { path: `/category/${category!.id}`, label: category!.name },
-          { label: product!.title },
-        ];
-        dispatch(setPath(navData));
-        return;
-      }
-      // If we're on a product route but don't have valid data yet, don't update state
-      return;
+      navState.breadcrumbs = breadcrumbs;
+      //console.log("ancestors", ancestors);
     } else {
-      // Handle static routes - generate breadcrumbs from route handles
-      const breadcrumbs: NavigationState["breadcrumbs"] = [
-        { path: "/", label: t("breadcrumb.home") },
-      ];
+      const breadcrumbs = matches
+        .map((match) => extractStaticBreadcrumb(match, t))
+        .filter(Boolean) as BreadcrumbItem[];
 
-      // Process matches to build breadcrumbs
-      matches.forEach((match: UIMatch) => {
-        const handle = match.handle as RouteHandle | undefined;
-        if (handle?.breadcrumb && handle.breadcrumb !== "dynamic") {
-          // It's a translation key
-          const label = t(handle.breadcrumb);
-          // For static routes, we may not have a path, so check if match has pathname
-          const path =
-            match.pathname !== location.pathname ? match.pathname : undefined;
-          breadcrumbs.push({
-            ...(path && { path }),
-            label,
-          });
-        }
-      });
-
-      navData.breadcrumbs = breadcrumbs;
-      navData.route = "static";
-      dispatch(setPath(navData));
+      console.log(breadcrumbs);
+      navState.breadcrumbs = breadcrumbs;
     }
+
+    dispatch(setNavigationState(navState));
   }, [
     location,
-    dispatch,
+    params,
     matches,
-    category,
-    product,
-    productId,
-    categoryId,
-    categoryMatch,
-    productMatch,
-    isValidProduct,
-    isValidCategory,
-    isLoadingProduct,
-    isLoadingCategory,
     t,
+    categoryId,
+    product,
+    category,
+    ancestors,
+    dispatch,
   ]);
 }

@@ -9,6 +9,7 @@ import {
 import authReducer from "@/features/auth/authSlice";
 import navigationReducer from "@/features/navigation/navigationSlice";
 import cartReducer from "@/features/cart/cartSlice";
+import categoriesReducer from "@/features/category/categoriesSlice";
 import { apiSlice } from "@/app/apiSlice";
 // import notificationsReducer from '@/features/notifications/notificationsSlice'
 
@@ -19,6 +20,7 @@ export const store = configureStore({
     auth: authReducer,
     navigation: navigationReducer,
     cart: cartReducer,
+    categories: categoriesReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
