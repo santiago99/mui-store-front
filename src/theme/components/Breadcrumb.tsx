@@ -1,63 +1,61 @@
-import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import HomeIcon from "@mui/icons-material/Home";
-import { Link as RouterLink } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Home, ChevronRight } from "lucide-react";
 
 import { useAppSelector } from "@/app/hooks";
+import { cn } from "@/lib/utils";
 
 export default function Breadcrumb() {
   const navigation = useAppSelector((state) => state.navigation);
+  const { t } = useTranslation();
 
   // Don't show breadcrumb if there are no breadcrumbs or on frontpage
   if (!navigation.breadcrumbs || navigation.breadcrumbs.length === 0) {
     return null;
   }
 
-  return (
-    <Breadcrumbs
-      separator={<NavigateNextIcon fontSize="small" />}
-      aria-label="breadcrumb"
-      sx={{ my: 2 }}
-    >
-      {navigation.breadcrumbs.map((breadcrumb, index) => {
-        const isLast = index === navigation.breadcrumbs.length - 1;
-        const isHome = breadcrumb.path === "/";
+  // Always prepend homepage breadcrumb
+  const breadcrumbsWithHome = [
+    { path: "/", label: t("breadcrumb.home") },
+    ...navigation.breadcrumbs,
+  ];
 
-        if (breadcrumb.path) {
+  return (
+    <nav aria-label="breadcrumb" className="my-2">
+      <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+        {breadcrumbsWithHome.map((breadcrumb, index) => {
+          const isLast = index === breadcrumbsWithHome.length - 1;
+          const isHome = breadcrumb.path === "/";
+
           return (
-            <Link
-              key={index}
-              component={RouterLink}
-              to={breadcrumb.path}
-              sx={{
-                display: isHome ? "flex" : "block",
-                alignItems: isHome ? "center" : undefined,
-                textDecoration: "none",
-                color: isLast ? "text.primary" : "text.secondary",
-                fontWeight: isLast ? 500 : undefined,
-                "&:hover": {
-                  textDecoration: "underline",
-                },
-              }}
-            >
-              {isHome && <HomeIcon sx={{ mr: 0.5, fontSize: 20 }} />}
-              {breadcrumb.label}
-            </Link>
+            <li key={index} className="flex items-center gap-1.5">
+              {index > 0 && (
+                <ChevronRight
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+              )}
+              {breadcrumb.path ? (
+                <Link
+                  to={breadcrumb.path}
+                  className={cn(
+                    "flex items-center gap-1.5 transition-colors hover:text-foreground",
+                    isLast && "font-medium text-foreground",
+                    !isLast && "hover:underline"
+                  )}
+                >
+                  {isHome && <Home className="h-4 w-4" />}
+                  {breadcrumb.label}
+                </Link>
+              ) : (
+                <span className={cn("font-medium text-foreground")}>
+                  {breadcrumb.label}
+                </span>
+              )}
+            </li>
           );
-        } else {
-          return (
-            <Typography
-              key={index}
-              color="text.primary"
-              sx={{ fontWeight: 500 }}
-            >
-              {breadcrumb.label}
-            </Typography>
-          );
-        }
-      })}
-    </Breadcrumbs>
+        })}
+      </ol>
+    </nav>
   );
 }
