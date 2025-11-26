@@ -44,7 +44,11 @@ export interface ResetPasswordData {
 }
 
 export const authApi = apiSlice.injectEndpoints({
-  endpoints: (builder) => ({
+  endpoints: (
+    builder: Parameters<
+      Parameters<typeof apiSlice.injectEndpoints>[0]["endpoints"]
+    >[0]
+  ) => ({
     login: builder.mutation<void, LoginCredentials>({
       query: (credentials) => ({
         url: "/login",
