@@ -14,7 +14,7 @@ const PRODUCT_GRID_CLASS =
 
 export interface ProductListProps {
   pageSize?: number;
-  categoryId?: string | number;
+  categoryId?: number;
 }
 
 function PaginationControls({

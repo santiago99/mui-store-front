@@ -23,8 +23,8 @@ export interface CategoryTreeItemProps {
   category: Category;
   level: number;
   onClose: () => void;
-  currentCategoryId?: string | number | null;
-  currentCategoryAncestors?: Array<{ id: string | number }>;
+  currentCategoryId?: number | null;
+  currentCategoryAncestors?: Array<{ id: number }>;
 }
 
 export default function CategoryTreeItem({
@@ -36,14 +36,12 @@ export default function CategoryTreeItem({
 }: CategoryTreeItemProps) {
   const { t } = useTranslation();
   const isLeaf = category.isLeaf;
-  const categoryIdNumber = typeof category.id === "string" ? parseInt(category.id, 10) : category.id;
-  const isActive = useAppSelector(selectIsActive(categoryIdNumber));
+  const isActive = useAppSelector(selectIsActive(category.id));
 
   // Check if this category should be expanded based on ancestors
   const shouldBeExpanded =
-    currentCategoryAncestors?.some(
-      (ancestor) => ancestor.id.toString() === category.id.toString()
-    ) || false;
+    currentCategoryAncestors?.some((ancestor) => ancestor.id === category.id) ||
+    false;
 
   const [open, setOpen] = React.useState(shouldBeExpanded);
 
@@ -114,4 +112,3 @@ export default function CategoryTreeItem({
     </>
   );
 }
-
