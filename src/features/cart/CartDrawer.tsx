@@ -1,29 +1,20 @@
-import {
-  Drawer,
-  Box,
-  Typography,
-  IconButton,
-  Divider,
-  Stack,
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
-  TextField,
-  CircularProgress,
-} from "@mui/material";
-import {
-  Close as CloseIcon,
-  Add as AddIcon,
-  Remove as RemoveIcon,
-  Delete as DeleteIcon,
-  ShoppingCart as ShoppingCartIcon,
-} from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { selectIsDrawerOpen, closeDrawer } from "./cartSlice";
 import { useCart } from "./useCart";
 import { formatPriceRub } from "./cartUtils";
 import { useTranslation } from "react-i18next";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { X, Plus, Minus, Trash2, ShoppingCart, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CartDrawerProps {
   onNavigateToCart?: () => void;
@@ -41,7 +32,7 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
   };
 
   const handleQuantityChange = async (
-    productId: number,
+    productId: string,
     newQuantity: number
   ) => {
     if (newQuantity < 1) return;
@@ -52,7 +43,7 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
     }
   };
 
-  const handleRemoveItem = async (productId: number) => {
+  const handleRemoveItem = async (productId: string) => {
     try {
       await removeItem(productId);
     } catch (error) {
@@ -67,103 +58,84 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
 
   return (
     <Drawer
-      anchor="right"
       open={isOpen}
-      onClose={handleClose}
-      sx={{
-        "& .MuiDrawer-paper": {
-          width: { xs: "100%", sm: 400 },
-          maxWidth: "100vw",
-        },
-      }}
+      onOpenChange={(open: boolean) => !open && handleClose()}
+      side="right"
     >
-      <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <DrawerContent
+        side="right"
+        className="w-full sm:w-[400px] p-0 flex flex-col"
+      >
         {/* Header */}
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Typography variant="h6" component="h2">
+        <DrawerHeader className="p-4 border-b">
+          <div className="flex items-center justify-between">
+            <DrawerTitle className="text-lg font-semibold">
               {t("cart.shoppingCart")} ({count})
-            </Typography>
-            <IconButton onClick={handleClose} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Stack>
-        </Box>
+            </DrawerTitle>
+            <DrawerClose asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </DrawerClose>
+          </div>
+        </DrawerHeader>
 
         {/* Content */}
-        <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>
+        <div className="flex-1 overflow-auto p-4">
           {isLoading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-              <CircularProgress />
-            </Box>
+            <div className="flex justify-center items-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
           ) : items.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <ShoppingCartIcon
-                sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
-              />
-              <Typography variant="h6" color="text.secondary" gutterBottom>
+            <div className="text-center py-16">
+              <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {t("cart.yourCartIsEmpty")}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              </h3>
+              <p className="text-sm text-muted-foreground">
                 {t("cart.addSomeItems")}
-              </Typography>
-            </Box>
+              </p>
+            </div>
           ) : (
-            <Stack spacing={2}>
+            <div className="space-y-4">
               {items.map((item) => (
-                <Card key={item.product_id} variant="outlined">
-                  <CardContent sx={{ p: 2 }}>
-                    <Stack direction="row" spacing={2}>
+                <Card key={item.product_id}>
+                  <CardContent className="p-4">
+                    <div className="flex gap-4">
                       {/* Product Image */}
-                      <CardMedia
-                        component="img"
-                        image={
+                      <img
+                        src={
                           item.product.imageUrl &&
                           item.product.imageUrl.length > 0
                             ? item.product.imageUrl
                             : "/assets/no-photo.jpeg"
                         }
                         alt={item.product.title}
-                        sx={{
-                          width: 80,
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 1,
-                        }}
+                        className="w-20 h-20 object-cover rounded-md flex-shrink-0"
                       />
 
                       {/* Product Details */}
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          variant="subtitle2"
-                          component="h3"
-                          sx={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            mb: 1,
-                          }}
+                      <div className="flex-1 min-w-0">
+                        <h3
+                          className={cn(
+                            "text-sm font-semibold mb-1",
+                            "overflow-hidden text-ellipsis whitespace-nowrap"
+                          )}
                         >
                           {item.product.title}
-                        </Typography>
+                        </h3>
 
-                        <Typography
-                          variant="body2"
-                          color="primary"
-                          fontWeight="bold"
-                          sx={{ mb: 1 }}
-                        >
+                        <p className="text-sm font-bold text-primary mb-2">
                           {formatPriceRub(item.product.price)}
-                        </Typography>
+                        </p>
 
                         {/* Quantity Controls */}
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <IconButton
-                            size="small"
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() =>
                               handleQuantityChange(
                                 item.product_id,
@@ -172,10 +144,11 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
                             }
                             disabled={item.quantity <= 1}
                           >
-                            <RemoveIcon fontSize="small" />
-                          </IconButton>
+                            <Minus className="h-4 w-4" />
+                          </Button>
 
-                          <TextField
+                          <Input
+                            type="number"
                             value={item.quantity}
                             onChange={(e) => {
                               const value = parseInt(e.target.value, 10);
@@ -183,16 +156,14 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
                                 handleQuantityChange(item.product_id, value);
                               }
                             }}
-                            size="small"
-                            sx={{ width: 60 }}
-                            inputProps={{
-                              min: 1,
-                              style: { textAlign: "center" },
-                            }}
+                            className="w-16 h-8 text-center"
+                            min={1}
                           />
 
-                          <IconButton
-                            size="small"
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() =>
                               handleQuantityChange(
                                 item.product_id,
@@ -200,70 +171,60 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
                               )
                             }
                           >
-                            <AddIcon fontSize="small" />
-                          </IconButton>
+                            <Plus className="h-4 w-4" />
+                          </Button>
 
-                          <IconButton
-                            size="small"
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 ml-auto text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => handleRemoveItem(item.product_id)}
-                            color="error"
-                            sx={{ ml: "auto" }}
                           >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      </Box>
-                    </Stack>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
-            </Stack>
+            </div>
           )}
-        </Box>
+        </div>
 
         {/* Footer */}
         {items.length > 0 && (
           <>
-            <Divider />
-            <Box sx={{ p: 2 }}>
-              <Stack spacing={2}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography variant="h6">{t("common.total")}:</Typography>
-                  <Typography variant="h6" color="primary" fontWeight="bold">
-                    {formatPriceRub(total)}
-                  </Typography>
-                </Box>
+            <div className="border-t" />
+            <div className="p-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">{t("common.total")}:</h3>
+                <h3 className="text-lg font-bold text-primary">
+                  {formatPriceRub(total)}
+                </h3>
+              </div>
 
-                <Button
-                  variant="contained"
-                  size="large"
-                  fullWidth
-                  disabled
-                  sx={{ py: 1.5 }}
-                >
-                  {t("cart.checkoutComingSoon")}
-                </Button>
+              <Button
+                variant="default"
+                size="lg"
+                className="w-full py-6"
+                disabled
+              >
+                {t("cart.checkoutComingSoon")}
+              </Button>
 
-                <Button
-                  variant="outlined"
-                  size="large"
-                  fullWidth
-                  onClick={handleViewCart}
-                  sx={{ py: 1.5 }}
-                >
-                  {t("cart.viewCart")}
-                </Button>
-              </Stack>
-            </Box>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full py-6"
+                onClick={handleViewCart}
+              >
+                {t("cart.viewCart")}
+              </Button>
+            </div>
           </>
         )}
-      </Box>
+      </DrawerContent>
     </Drawer>
   );
 }

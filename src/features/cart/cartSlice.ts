@@ -2,10 +2,10 @@ import type { RootState } from "@/app/store";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export interface LocalCartItem {
-  product_id: number;
+  product_id: string;
   quantity: number;
   product: {
-    id: number;
+    id: string;
     title: string;
     price: number;
     imageUrl: string;
@@ -68,7 +68,7 @@ const cartSlice = createSlice({
     },
     updateLocalCartItemQuantity(
       state,
-      action: PayloadAction<{ product_id: number; quantity: number }>
+      action: PayloadAction<{ product_id: string; quantity: number }>
     ) {
       const { product_id, quantity } = action.payload;
       const item = state.localCart.find(
@@ -86,7 +86,7 @@ const cartSlice = createSlice({
         saveLocalCartToStorage(state.localCart);
       }
     },
-    removeFromLocalCart(state, action: PayloadAction<number>) {
+    removeFromLocalCart(state, action: PayloadAction<string>) {
       state.localCart = state.localCart.filter(
         (item) => item.product_id !== action.payload
       );

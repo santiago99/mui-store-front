@@ -58,16 +58,16 @@ export const useCart = () => {
       try {
         if (isAuthenticated) {
           await addToCartMutation({
-            product_id: product.id as number,
+            product_id: product.id,
             quantity,
           }).unwrap();
         } else {
           dispatch(
             addToLocalCart({
-              product_id: product.id as number,
+              product_id: product.id,
               quantity,
               product: {
-                id: product.id as number,
+                id: product.id,
                 title: product.title,
                 price: product.price,
                 imageUrl: product.imageUrl,
@@ -86,7 +86,7 @@ export const useCart = () => {
 
   // Update item quantity
   const updateItemQuantity = useCallback(
-    async (productId: number, quantity: number) => {
+    async (productId: string, quantity: number) => {
       try {
         if (isAuthenticated) {
           const cartItem = serverCartItems.find(
@@ -113,7 +113,7 @@ export const useCart = () => {
 
   // Remove item from cart
   const removeItem = useCallback(
-    async (productId: number) => {
+    async (productId: string) => {
       try {
         if (isAuthenticated) {
           const cartItem = serverCartItems.find(

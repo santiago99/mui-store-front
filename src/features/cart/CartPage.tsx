@@ -39,7 +39,7 @@ export default function CartPage() {
   } = useCart();
 
   const handleQuantityChange = async (
-    productId: number,
+    productId: string,
     newQuantity: number
   ) => {
     if (newQuantity < 1) return;
@@ -50,7 +50,7 @@ export default function CartPage() {
     }
   };
 
-  const handleRemoveItem = async (productId: number) => {
+  const handleRemoveItem = async (productId: string) => {
     try {
       await removeItem(productId);
     } catch (error) {

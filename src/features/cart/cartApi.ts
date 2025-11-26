@@ -3,7 +3,7 @@ import type { Product } from "@/features/product/productApi";
 
 export interface CartItem {
   id: number;
-  product_id: number;
+  product_id: string;
   quantity: number;
   product: Product;
   created_at: string;
@@ -11,7 +11,7 @@ export interface CartItem {
 }
 
 export interface AddToCartRequest {
-  product_id: number;
+  product_id: string;
   quantity: number;
 }
 
@@ -21,7 +21,7 @@ export interface UpdateCartItemRequest {
 
 export interface MergeCartRequest {
   items: Array<{
-    product_id: number;
+    product_id: string;
     quantity: number;
   }>;
 }
