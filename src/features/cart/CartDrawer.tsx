@@ -10,18 +10,16 @@ import {
   DrawerTitle,
   DrawerClose,
 } from "@/components/ui/drawer";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { X, Plus, Minus, Trash2, ShoppingCart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface CartDrawerProps {
-  onNavigateToCart?: () => void;
-}
-
-export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
+export default function CartDrawer() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector(selectIsDrawerOpen);
   const { items, count, total, isLoading, updateItemQuantity, removeItem } =
@@ -53,7 +51,7 @@ export default function CartDrawer({ onNavigateToCart }: CartDrawerProps) {
 
   const handleViewCart = () => {
     handleClose();
-    onNavigateToCart?.();
+    navigate("/cart");
   };
 
   return (

@@ -1,111 +1,49 @@
-import Drawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import { useGetCategoryQuery, useGetProductQuery } from "@/app/apiSlice";
 import { useAppSelector } from "@/app/hooks";
+import { selectActiveCategoryId } from "@/features/navigation/navigationSlice";
 import FilterSidebar from "@/features/category/components/FilterSidebar";
-import CategoriesTree from "@/features/category/components/CategoriesTree";
+import SubcategoriesList from "@/features/category/components/SubcategoriesList";
 import { layoutMath } from "../themePrimitives";
 
-interface SidebarProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-export default function Sidebar({ open, onClose }: SidebarProps) {
+export default function Sidebar() {
   const navigation = useAppSelector((state) => state.navigation);
 
-  let currentCategoryId = null;
-  let currentProductId = null;
-
-  if (navigation.route === "category") {
-    currentCategoryId = navigation.data.categoryId as number;
-  } else if (navigation.route === "product") {
-    currentProductId = navigation.data.productId as string;
+  const currentCategoryId = navigation.data.categoryId as number | null;
+  // Hide sidebar on all routes except category and product pages
+  if (
+    !["category", "product"].includes(navigation.route) ||
+    !currentCategoryId
+  ) {
+    return null;
   }
 
-  // Get product data if we're on a product page
-  const { data: product } = useGetProductQuery(currentProductId!, {
-    skip: !currentProductId,
-  });
-
-  // If we have a product, get its category ID
-  if (product) {
-    currentCategoryId = product.categoryId as number;
-  }
-
-  // Get current category data if we're on a category page or have a product
-  const { data: currentCategory } = useGetCategoryQuery(currentCategoryId!, {
-    skip: !currentCategoryId,
-  });
-
-  // Extract ancestors for auto-expansion
-  const currentCategoryAncestors = currentCategory?.ancestors || [];
-
-  // Mobile drawer content (categories tree only, no FilterSidebar)
-  const mobileDrawerContent = (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <CategoriesTree
-        onClose={onClose}
-        currentCategoryId={currentCategoryId}
-        currentCategoryAncestors={currentCategoryAncestors}
-      />
-    </Box>
-  );
-
-  // Desktop sidebar content (categories tree + FilterSidebar)
+  // Desktop sidebar content (SubcategoriesList + FilterSidebar only on category pages)
   const desktopSidebarContent = (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <CategoriesTree
-        onClose={onClose}
-        currentCategoryId={currentCategoryId}
-        currentCategoryAncestors={currentCategoryAncestors}
-      />
-      <Box sx={{ display: { xs: "none", sm: "block" } }}>
-        <FilterSidebar
-          categoryId={currentCategoryId ? (currentCategoryId as number) : null}
-        />
-      </Box>
-    </Box>
+    <div className="h-full flex flex-col">
+      <SubcategoriesList currentCategoryId={currentCategoryId} />
+      {navigation.route === "category" && currentCategoryId && (
+        <div className="hidden sm:block">
+          <FilterSidebar categoryId={currentCategoryId} />
+        </div>
+      )}
+    </div>
   );
 
   return (
-    <Box
-      component="nav"
-      sx={{ width: { sm: layoutMath.sidebarWidth }, flexShrink: { sm: 0 } }}
+    <nav
+      className="hidden sm:block flex-shrink-0"
+      style={{ width: `${layoutMath.sidebarWidth}px` }}
     >
-      {/* Mobile only drawer */}
-      <Drawer
-        variant="temporary"
-        anchor="left"
-        open={open}
-        onClose={onClose}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          display: { xs: "block", sm: "none" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: layoutMath.sidebarWidth,
-          },
-        }}
-      >
-        {mobileDrawerContent}
-      </Drawer>
       {/* Desktop sidebar - HTML block instead of Drawer */}
-      <Box
-        component="aside"
-        sx={{
-          display: { xs: "none", sm: "block" },
-          width: layoutMath.sidebarWidth,
+      <aside
+        className="h-full bg-background border-r border-border"
+        style={{
+          width: `${layoutMath.sidebarWidth}px`,
           boxSizing: "border-box",
-          borderColor: "divider",
-          backgroundColor: "background.paper",
-          zIndex: (theme) => theme.zIndex.drawer,
+          zIndex: 1200,
         }}
       >
         {desktopSidebarContent}
-      </Box>
-    </Box>
+      </aside>
+    </nav>
   );
 }

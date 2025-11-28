@@ -1,27 +1,18 @@
-import * as React from "react";
-import { useTheme } from "@mui/material/styles";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { ChevronLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/app/hooks";
 import { useGetCategoriesTreeQuery } from "@/app/apiSlice";
 import { selectActiveCategoryId } from "@/features/navigation/navigationSlice";
 import type { Category } from "@/features/category/categoryApi";
+import { Button } from "@/components/ui/button";
 import CategoryTreeItem from "./CategoryTreeItem";
 
 export interface CategoriesTreeProps {
   onClose: () => void;
 }
 
-export default function CategoriesTree({
-  onClose,
-}: CategoriesTreeProps) {
+export default function CategoriesTree({ onClose }: CategoriesTreeProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const navigation = useAppSelector((state) => state.navigation);
   const currentCategoryId = useAppSelector(selectActiveCategoryId);
   const ancestors = navigation.ancestors || [];
@@ -29,43 +20,34 @@ export default function CategoriesTree({
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "start",
-          px: 2,
-          py: 1,
-          borderBottom: 1,
-          borderColor: "divider",
-        }}
-      >
-        <Typography variant="h6" component="div">
+      <div className="flex items-center justify-start px-4 py-2 border-b border-border">
+        <h6 className="text-lg font-semibold flex-1">
           {t("sidebar.categories")}
-        </Typography>
-        <IconButton onClick={onClose} sx={{ display: { sm: "none" } }}>
-          {theme.direction === "rtl" ? (
-            <ChevronRightIcon />
-          ) : (
-            <ChevronLeftIcon />
-          )}
-        </IconButton>
-      </Box>
-      <Box sx={{ flexGrow: 1, overflow: "auto" }}>
+        </h6>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="sm:hidden"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="flex-1 overflow-auto">
         {isLoading ? (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
+          <div className="p-4">
+            <p className="text-sm text-muted-foreground">
               {t("sidebar.loadingCategories")}
-            </Typography>
-          </Box>
+            </p>
+          </div>
         ) : isError ? (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="body2" color="error">
+          <div className="p-4">
+            <p className="text-sm text-destructive">
               {t("sidebar.errorLoadingCategories")}
-            </Typography>
-          </Box>
+            </p>
+          </div>
         ) : (
-          <List>
+          <ul className="list-none">
             {categories?.map((category: Category) => (
               <CategoryTreeItem
                 key={category.id}
@@ -76,10 +58,9 @@ export default function CategoriesTree({
                 currentCategoryAncestors={ancestors}
               />
             ))}
-          </List>
+          </ul>
         )}
-      </Box>
+      </div>
     </>
   );
 }
-

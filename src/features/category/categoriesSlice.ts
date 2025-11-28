@@ -95,4 +95,14 @@ export const selectCategoryChildren = createSelector(
   }
 );
 
+export const selectCategoryFromCache = createSelector(
+  [
+    (state: RootState) => state.categories.entities,
+    (_state: RootState, id: number | null) => id,
+  ],
+  (entities, id): Category | null => {
+    return id ? entities[id] : null;
+  }
+);
+
 export default categoriesSlice.reducer;

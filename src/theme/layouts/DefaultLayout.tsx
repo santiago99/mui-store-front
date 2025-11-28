@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Outlet } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
 import type {} from "@mui/material/themeCssVarsAugmentation";
@@ -26,25 +25,11 @@ import { layoutMath } from "../themePrimitives";
 export default function DefaultLayout() {
   useRouteChange();
 
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-
-  const handleDrawerToggle = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  const handleDrawerClose = () => {
-    setSidebarOpen(false);
-  };
-
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />
       <Box sx={{ display: "flex", mt: "4rem" }}>
-        <Navbar
-          /* layoutMath.sidebarWidth={layoutMath.sidebarWidth} */ onMenuClick={
-            handleDrawerToggle
-          }
-        />
+        <Navbar />
 
         <Box
           component="main"
@@ -57,7 +42,7 @@ export default function DefaultLayout() {
             flexDirection: "row",
           }}
         >
-          <Sidebar open={sidebarOpen} onClose={handleDrawerClose} />
+          <Sidebar />
           <Box
             sx={{
               width: "100%",
