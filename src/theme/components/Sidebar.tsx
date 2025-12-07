@@ -1,5 +1,4 @@
 import { useAppSelector } from "@/app/hooks";
-import { selectActiveCategoryId } from "@/features/navigation/navigationSlice";
 import FilterSidebar from "@/features/category/components/FilterSidebar";
 import SubcategoriesList from "@/features/category/components/SubcategoriesList";
 import { layoutMath } from "../themePrimitives";
@@ -17,17 +16,6 @@ export default function Sidebar() {
   }
 
   // Desktop sidebar content (SubcategoriesList + FilterSidebar only on category pages)
-  const desktopSidebarContent = (
-    <div className="h-full flex flex-col">
-      <SubcategoriesList currentCategoryId={currentCategoryId} />
-      {navigation.route === "category" && currentCategoryId && (
-        <div className="hidden sm:block">
-          <FilterSidebar categoryId={currentCategoryId} />
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <nav
       className="hidden sm:block flex-shrink-0"
@@ -42,7 +30,14 @@ export default function Sidebar() {
           zIndex: 1200,
         }}
       >
-        {desktopSidebarContent}
+        <div className="h-full flex flex-col">
+          <SubcategoriesList currentCategoryId={currentCategoryId} />
+          {navigation.route === "category" && currentCategoryId && (
+            <div className="hidden sm:block">
+              <FilterSidebar categoryId={currentCategoryId} />
+            </div>
+          )}
+        </div>
       </aside>
     </nav>
   );
