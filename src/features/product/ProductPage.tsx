@@ -177,11 +177,17 @@ export default function ProductPage() {
                           {field.name}:
                         </span>
                         <span className="text-sm">
+                          {field.options?.prefix && (
+                            <span>{field.options.prefix}</span>
+                          )}
                           {field.type === "integer"
                             ? typeof field.value === "number"
                               ? field.value
                               : parseInt(field.value as string, 10)
                             : String(field.value)}
+                          {field.options?.suffix && (
+                            <span>{field.options.suffix}</span>
+                          )}
                         </span>
                       </div>
                     ))}
