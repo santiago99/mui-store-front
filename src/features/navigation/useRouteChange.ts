@@ -114,7 +114,7 @@ export function useRouteChange() {
         path: `/category/${ancestor.id}`,
       }));
 
-      if (product !== undefined) {
+      if (productId !== null && product !== undefined) {
         // Product route
         console.log("product route");
         navState.route = "product";
@@ -156,6 +156,7 @@ export function useRouteChange() {
     matches,
     t,
     categoryId,
+    productId,
     product,
     category,
     ancestors,
