@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { useGetCategoriesTreeQuery } from "@/app/apiSlice";
 import type { Category } from "@/features/category/categoryApi";
