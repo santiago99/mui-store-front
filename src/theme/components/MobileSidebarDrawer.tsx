@@ -1,6 +1,6 @@
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import CategoriesTree from "@/features/category/components/CategoriesTree";
-import { layoutMath } from "../themePrimitives";
+import { layoutMath } from "@/lib/layout";
 
 interface MobileSidebarDrawerProps {
   open: boolean;

@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/hooks";
 import FilterSidebar from "@/features/category/components/FilterSidebar";
 import SubcategoriesList from "@/features/category/components/SubcategoriesList";
-import { layoutMath } from "../themePrimitives";
+import { layoutMath } from "@/lib/layout";
 
 export default function Sidebar() {
   const navigation = useAppSelector((state) => state.navigation);

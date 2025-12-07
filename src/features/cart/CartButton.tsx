@@ -6,9 +6,9 @@ import {
   toggleDrawer,
 } from "@/features/cart/cartSlice";
 import { useCart } from "@/features/cart/useCart";
+import { getCartIconAnimationStyles } from "@/features/cart/cartAnimations";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 export default function CartButton() {
   const { t } = useTranslation();
@@ -22,10 +22,8 @@ export default function CartButton() {
       size="icon"
       onClick={() => dispatch(toggleDrawer())}
       aria-label={t("navbar.shoppingCart")}
-      className={cn(
-        "relative",
-        animationTrigger > 0 && "animate-[bounce_0.3s_ease-in-out]"
-      )}
+      className="relative"
+      style={getCartIconAnimationStyles(animationTrigger)}
     >
       <ShoppingCart className="h-5 w-5" />
       {count > 0 && (
@@ -39,4 +37,3 @@ export default function CartButton() {
     </Button>
   );
 }
-
