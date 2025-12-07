@@ -6,15 +6,18 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGetProductsQuery } from "@/app/apiSlice";
 import { type Product } from "@/features/product/productApi";
+import { useAppSelector } from "@/app/hooks";
+import { selectFilters, selectBrandId } from "@/features/category/filtersSlice";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
 
 const PRODUCT_GRID_CLASS =
-  "grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4";
+  "grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6";
 
 export interface ProductListProps {
   pageSize?: number;
   categoryId?: number;
+  brandId?: number;
 }
 
 function PaginationControls({
@@ -72,8 +75,19 @@ function PaginationControls({
 
 export default function ProductList(props: ProductListProps) {
   const { t } = useTranslation();
-  const { pageSize = 12, categoryId } = props;
+  const { pageSize = 12, categoryId, brandId: brandIdProp } = props;
   const [page, setPage] = React.useState(1);
+  const filters = useAppSelector(selectFilters);
+  const brandIdFromRedux = useAppSelector(selectBrandId);
+
+  // Use brandId from props if provided, otherwise fall back to Redux state
+  const brandId = brandIdProp ?? brandIdFromRedux;
+
+  // Reset page to 1 when filters or category change
+  React.useEffect(() => {
+    setPage(1);
+  }, [filters, brandId, categoryId]);
+
   const {
     data: products,
     isLoading,
@@ -83,6 +97,8 @@ export default function ProductList(props: ProductListProps) {
     page,
     perPage: pageSize,
     category_id: categoryId,
+    filters: Object.keys(filters).length > 0 ? filters : undefined,
+    brand_id: brandId,
   });
 
   const renderSkeletons = () => (
