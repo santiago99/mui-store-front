@@ -35,7 +35,9 @@ export default function ProductCard(props: ProductCardProps) {
   };
 
   const imageSrc =
-    product.imageUrl.length > 0 ? product.imageUrl : "/assets/no-photo.jpeg";
+    product.imageUrl && product.imageUrl.length > 0
+      ? product.imageUrl
+      : "/assets/no-photo.jpeg";
 
   return (
     <Card className="flex h-full flex-col overflow-hidden">
