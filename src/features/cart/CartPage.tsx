@@ -1,30 +1,19 @@
-import {
-  Container,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  Stack,
-  Button,
-  IconButton,
-  TextField,
-  CircularProgress,
-  Divider,
-  Grid,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Remove as RemoveIcon,
-  Delete as DeleteIcon,
-  ShoppingCart as ShoppingCartIcon,
-  ArrowBack as ArrowBackIcon,
-} from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
+import {
+  Plus,
+  Minus,
+  Trash2,
+  ShoppingCart,
+  ArrowLeft,
+  Loader2,
+} from "lucide-react";
 
 import { useCart } from "./useCart";
 import { formatPriceRub } from "./cartUtils";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export default function CartPage() {
   const { t } = useTranslation();
@@ -68,112 +57,92 @@ export default function CartPage() {
 
   if (isLoading) {
     return (
-      <Container sx={{ py: 4 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container sx={{ py: 4 }}>
+    <div className="max-w-7xl mx-auto px-4 py-16">
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-          <Button
-            component={RouterLink}
-            to="/"
-            startIcon={<ArrowBackIcon />}
-            variant="outlined"
-            size="small"
-          >
-            {t("cart.continueShopping")}
+      <div className="mb-8">
+        <div className="flex flex-row items-center gap-4 mb-4">
+          <Button asChild variant="outline" size="sm">
+            <RouterLink to="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {t("cart.continueShopping")}
+            </RouterLink>
           </Button>
-          <Typography variant="h4" component="h1">
-            {t("cart.shoppingCart")}
-          </Typography>
-        </Stack>
+          <h1 className="text-3xl font-semibold">{t("cart.shoppingCart")}</h1>
+        </div>
 
         {items.length > 0 && (
-          <Typography variant="body1" color="text.secondary">
+          <p className="text-base text-muted-foreground">
             {t("cart.itemsInCart", { count })}
-          </Typography>
+          </p>
         )}
-      </Box>
+      </div>
 
       {items.length === 0 ? (
-        <Box sx={{ textAlign: "center", py: 8 }}>
-          <ShoppingCartIcon
-            sx={{ fontSize: 120, color: "text.secondary", mb: 3 }}
+        <div className="text-center py-16">
+          <ShoppingCart
+            className="h-30 w-30 text-muted-foreground mb-6 mx-auto"
+            style={{ fontSize: 120 }}
           />
-          <Typography variant="h5" color="text.secondary" gutterBottom>
+          <h2 className="text-2xl text-muted-foreground mb-4">
             {t("cart.yourCartIsEmpty")}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          </h2>
+          <p className="text-base text-muted-foreground mb-6">
             {t("cart.looksLikeEmpty")}
-          </Typography>
-          <Button
-            component={RouterLink}
-            to="/"
-            variant="contained"
-            size="large"
-          >
-            {t("cart.startShopping")}
+          </p>
+          <Button asChild variant="default" size="lg">
+            <RouterLink to="/">{t("cart.startShopping")}</RouterLink>
           </Button>
-        </Box>
+        </div>
       ) : (
-        <Grid container spacing={3}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Cart Items */}
-          <Grid size={{ xs: 12, lg: 8 }}>
-            <Stack spacing={2}>
+          <div className="lg:col-span-8">
+            <div className="flex flex-col gap-4">
               {items.map((item) => (
-                <Card key={item.product_id} variant="outlined">
-                  <CardContent>
-                    <Grid container spacing={3} alignItems="center">
+                <Card key={item.product_id}>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
                       {/* Product Image */}
-                      <Grid size={{ xs: 12, sm: 4, md: 3 }}>
-                        <CardMedia
-                          component="img"
-                          image={
+                      <div className="sm:col-span-3 md:col-span-3">
+                        <img
+                          src={
                             item.product.imageUrl &&
                             item.product.imageUrl.length > 0
                               ? item.product.imageUrl
                               : "/assets/no-photo.jpeg"
                           }
                           alt={item.product.title}
-                          sx={{
-                            height: 120,
-                            objectFit: "cover",
-                            borderRadius: 1,
-                          }}
+                          className="h-30 w-full object-cover rounded-md"
+                          style={{ height: 120 }}
                         />
-                      </Grid>
+                      </div>
 
                       {/* Product Details */}
-                      <Grid size={{ xs: 12, sm: 6, md: 5, xl: 6 }}>
-                        <Typography variant="h6" component="h3" gutterBottom>
+                      <div className="sm:col-span-6 md:col-span-5 xl:col-span-6">
+                        <h3 className="text-lg font-semibold mb-2">
                           {item.product.title}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="primary"
-                          fontWeight="bold"
-                        >
+                        </h3>
+                        <p className="text-base text-primary font-bold">
                           {formatPriceRub(item.product.price)}
-                        </Typography>
-                      </Grid>
+                        </p>
+                      </div>
 
                       {/* Quantity Controls */}
-                      <Grid size={{ xs: 12, sm: 6, md: 4, xl: 3 }}>
-                        <Stack
-                          direction="row"
-                          alignItems="center"
-                          spacing={1}
-                          justifyContent="center"
-                        >
-                          <IconButton
-                            size="small"
+                      <div className="sm:col-span-3 md:col-span-4 xl:col-span-3">
+                        <div className="flex flex-row items-center gap-2 justify-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() =>
                               handleQuantityChange(
                                 item.product_id,
@@ -182,10 +151,11 @@ export default function CartPage() {
                             }
                             disabled={item.quantity <= 1}
                           >
-                            <RemoveIcon />
-                          </IconButton>
+                            <Minus className="h-4 w-4" />
+                          </Button>
 
-                          <TextField
+                          <Input
+                            type="number"
                             value={item.quantity}
                             onChange={(e) => {
                               const value = parseInt(e.target.value, 10);
@@ -193,16 +163,14 @@ export default function CartPage() {
                                 handleQuantityChange(item.product_id, value);
                               }
                             }}
-                            size="small"
-                            sx={{ width: 80 }}
-                            inputProps={{
-                              min: 1,
-                              style: { textAlign: "center" },
-                            }}
+                            className="w-20 h-8 text-center"
+                            min={1}
                           />
 
-                          <IconButton
-                            size="small"
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() =>
                               handleQuantityChange(
                                 item.product_id,
@@ -210,116 +178,95 @@ export default function CartPage() {
                               )
                             }
                           >
-                            <AddIcon />
-                          </IconButton>
+                            <Plus className="h-4 w-4" />
+                          </Button>
 
-                          <IconButton
-                            size="small"
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 ml-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => handleRemoveItem(item.product_id)}
-                            color="error"
-                            sx={{ ml: 1 }}
                           >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Stack>
-                      </Grid>
-                    </Grid>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
-            </Stack>
+            </div>
 
             {/* Clear Cart Button */}
-            <Box sx={{ mt: 3 }}>
+            <div className="mt-6">
               <Button
-                variant="outlined"
-                color="error"
+                variant="outline"
                 onClick={handleClearCart}
-                startIcon={<DeleteIcon />}
+                className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
               >
+                <Trash2 className="h-4 w-4 mr-2" />
                 {t("cart.clearCart")}
               </Button>
-            </Box>
-          </Grid>
+            </div>
+          </div>
 
           {/* Cart Summary */}
-          <Grid size={{ xs: 12, lg: 4 }}>
-            <Card variant="outlined" sx={{ position: "sticky", top: 20 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
+          <div className="lg:col-span-4">
+            <Card className="sticky top-5">
+              <CardContent className="p-6">
+                <h2 className="text-lg font-semibold mb-4">
                   {t("cart.orderSummary")}
-                </Typography>
+                </h2>
 
-                <Divider sx={{ my: 2 }} />
+                <div className="border-t my-4" />
 
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="body1">
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-base">
                     {t("common.items")} ({count}):
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatPriceRub(total)}
-                  </Typography>
-                </Box>
+                  </p>
+                  <p className="text-base">{formatPriceRub(total)}</p>
+                </div>
 
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="body1">{t("cart.shipping")}:</Typography>
-                  <Typography variant="body1" color="text.secondary">
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-base">{t("cart.shipping")}:</p>
+                  <p className="text-base text-muted-foreground">
                     {t("cart.calculatedAtCheckout")}
-                  </Typography>
-                </Box>
+                  </p>
+                </div>
 
-                <Divider sx={{ my: 2 }} />
+                <div className="border-t my-4" />
 
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 3,
-                  }}
-                >
-                  <Typography variant="h6">{t("common.total")}:</Typography>
-                  <Typography variant="h6" color="primary" fontWeight="bold">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-semibold">
+                    {t("common.total")}:
+                  </h3>
+                  <h3 className="text-lg text-primary font-bold">
                     {formatPriceRub(total)}
-                  </Typography>
-                </Box>
+                  </h3>
+                </div>
 
                 <Button
-                  variant="contained"
-                  size="large"
-                  fullWidth
+                  variant="default"
+                  size="lg"
+                  className="w-full py-6 mb-4"
                   disabled
-                  sx={{ py: 1.5, mb: 2 }}
                 >
                   {t("cart.checkoutComingSoon")}
                 </Button>
 
                 <Button
-                  component={RouterLink}
-                  to="/"
-                  variant="outlined"
-                  size="large"
-                  fullWidth
-                  sx={{ py: 1.5 }}
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="w-full py-6"
                 >
-                  {t("cart.continueShopping")}
+                  <RouterLink to="/">{t("cart.continueShopping")}</RouterLink>
                 </Button>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </div>
+        </div>
       )}
-    </Container>
+    </div>
   );
 }

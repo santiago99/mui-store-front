@@ -1,23 +1,11 @@
 import * as React from "react";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import Collapse from "@mui/material/Collapse";
-import Typography from "@mui/material/Typography";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/app/hooks";
 import { selectIsActive } from "@/features/navigation/navigationSlice";
 import type { Category } from "@/features/category/categoryApi";
-
-type ListItemLinkProps = {
-  to?: string;
-  onClick?: () => void;
-  component?: typeof RouterLink;
-};
+import { cn } from "@/lib/utils";
 
 export interface CategoryTreeItemProps {
   category: Category;
@@ -56,46 +44,65 @@ export default function CategoryTreeItem({
     }
   };
 
-  const linkProps: ListItemLinkProps = {};
-  if (isLeaf) {
-    linkProps.to = `/category/${category.id}`;
-    linkProps.onClick = onClose;
-    linkProps.component = RouterLink;
-  } else {
-    linkProps.onClick = handleClick;
-  }
+  const paddingLeft = `${1 + level}rem`; // Convert MUI spacing (pl: 2 + level * 2 = 16px base + 16px per level = 1rem + level * 1rem)
+
+  const buttonContent = (
+    <>
+      <div className="flex flex-col flex-1 min-w-0">
+        <span className="text-sm font-medium">{category.name}</span>
+        {category.productsCount && category.productsCount > 0 && (
+          <span className="text-xs text-muted-foreground">
+            {category.productsCount} {t("sidebar.products")}
+          </span>
+        )}
+      </div>
+      {!isLeaf && (
+        <div className="ml-2 flex-shrink-0">
+          {open ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </div>
+      )}
+    </>
+  );
+
+  const buttonClasses = cn(
+    "w-full flex items-center gap-2 py-2 px-2 text-left transition-colors",
+    "hover:bg-accent hover:text-accent-foreground",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    isActive && "bg-accent text-accent-foreground"
+  );
 
   return (
-    <>
-      <ListItem disablePadding>
-        <ListItemButton
-          onClick={handleClick}
-          sx={{
-            pl: 2 + level * 2,
-            py: 0.5,
-            backgroundColor: isActive ? "action.selected" : "transparent",
-            "&:hover": {
-              backgroundColor: isActive ? "action.selected" : "action.hover",
-            },
-          }}
-          {...linkProps}
+    <li className="list-none">
+      {isLeaf ? (
+        <RouterLink
+          to={`/category/${category.id}`}
+          onClick={onClose}
+          className={buttonClasses}
+          style={{ paddingLeft }}
         >
-          <ListItemText
-            primary={category.name}
-            secondary={
-              category.productsCount && category.productsCount > 0 ? (
-                <Typography variant="caption" color="text.secondary">
-                  {category.productsCount} {t("sidebar.products")}
-                </Typography>
-              ) : null
-            }
-          />
-          {!isLeaf && (open ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
-        </ListItemButton>
-      </ListItem>
+          {buttonContent}
+        </RouterLink>
+      ) : (
+        <button
+          onClick={handleClick}
+          className={buttonClasses}
+          style={{ paddingLeft }}
+        >
+          {buttonContent}
+        </button>
+      )}
       {!isLeaf && (
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+        <div
+          className={cn(
+            "overflow-hidden transition-all duration-300 ease-in-out",
+            open ? "max-h-[5000px] opacity-100" : "max-h-0 opacity-0"
+          )}
+        >
+          <ul className="list-none">
             {category.children!.map((child: Category) => (
               <CategoryTreeItem
                 key={child.id}
@@ -106,9 +113,9 @@ export default function CategoryTreeItem({
                 currentCategoryAncestors={currentCategoryAncestors}
               />
             ))}
-          </List>
-        </Collapse>
+          </ul>
+        </div>
       )}
-    </>
+    </li>
   );
 }
