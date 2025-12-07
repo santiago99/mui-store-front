@@ -1,19 +1,6 @@
 import React from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-
-import Box from "@mui/material/Box";
-import MuiCard from "@mui/material/Card";
-import { styled } from "@mui/material/styles";
-import {
-  Typography,
-  FormControl,
-  FormLabel,
-  TextField,
-  Button,
-  Link,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
+import { Loader2 } from "lucide-react";
 
 import { useAppSelector } from "@/app/hooks";
 import { selectAuthData } from "@/features/auth/authSlice";
@@ -21,6 +8,10 @@ import { useLoginMutation, useLazyGetCurrentUserQuery } from "./authApi";
 import { SignInContainer } from "@/theme/components/SignInContainer";
 import { selectLocalCartItems } from "@/features/cart/cartSlice";
 import { useTranslation } from "react-i18next";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface LoginPageFormFields extends HTMLFormControlsCollection {
   email: HTMLInputElement;
@@ -29,25 +20,6 @@ interface LoginPageFormFields extends HTMLFormControlsCollection {
 interface LoginPageFormElements extends HTMLFormElement {
   readonly elements: LoginPageFormFields;
 }
-
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignSelf: "center",
-  width: "100%",
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: "auto",
-  [theme.breakpoints.up("sm")]: {
-    maxWidth: "450px",
-  },
-  boxShadow:
-    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
-  }),
-}));
 
 export const LoginPage = () => {
   const { t } = useTranslation();
@@ -109,37 +81,29 @@ export const LoginPage = () => {
       errorMessage = error.message as string;
     }
     errorsRender = (
-      <Alert severity="error" sx={{ mb: 2 }}>
-        {errorMessage}
+      <Alert className="border-destructive/30 bg-destructive/10 text-destructive">
+        <AlertDescription>{errorMessage}</AlertDescription>
       </Alert>
     );
   }
 
   return (
     <SignInContainer>
-      <Card variant="outlined">
-        <Typography
-          component="h1"
-          variant="h4"
-          sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
-        >
+      <Card className="flex flex-col self-center w-full p-8 gap-4 mx-auto max-w-[450px] shadow-lg">
+        <h1 className="w-full text-4xl font-semibold" style={{ fontSize: "clamp(2rem, 10vw, 2.15rem)" }}>
           {t("auth.signIn")}
-        </Typography>
-        <Box
-          component="form"
+        </h1>
+        <form
           onSubmit={handleSubmit}
           noValidate
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            gap: 2,
-          }}
+          className="flex flex-col w-full gap-4"
         >
           {errorsRender}
-          <FormControl>
-            <FormLabel htmlFor="email">{t("common.email")}</FormLabel>
-            <TextField
+          <div className="flex flex-col gap-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              {t("common.email")}
+            </label>
+            <Input
               id="email"
               type="email"
               name="email"
@@ -147,48 +111,50 @@ export const LoginPage = () => {
               autoComplete="email"
               autoFocus
               required
-              fullWidth
-              variant="outlined"
               disabled={isLoading}
             />
-          </FormControl>
-          <FormControl>
-            <FormLabel htmlFor="password">{t("common.password")}</FormLabel>
-            <TextField
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password" className="text-sm font-medium">
+              {t("common.password")}
+            </label>
+            <Input
               name="password"
               placeholder={t("auth.passwordPlaceholder")}
               type="password"
               id="password"
               autoComplete="current-password"
               required
-              fullWidth
-              variant="outlined"
               disabled={isLoading}
             />
-          </FormControl>
+          </div>
           <Button
             type="submit"
-            fullWidth
-            variant="contained"
+            className="w-full"
             disabled={isLoading}
-            startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
+            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             {isLoading ? t("auth.signingIn") : t("auth.signIn")}
           </Button>
-          <Box sx={{ textAlign: "center", mt: 2 }}>
-            <Link component={RouterLink} to="/user/register" variant="body2">
-              {t("auth.dontHaveAccount")}
-            </Link>
-            <br />
-            <Link
-              component={RouterLink}
-              to="/user/forgot-password"
-              variant="body2"
-            >
-              {t("auth.forgotPassword")}
-            </Link>
-          </Box>
-        </Box>
+          <div className="text-center mt-4 space-y-2">
+            <div>
+              <RouterLink
+                to="/user/register"
+                className="text-sm text-primary hover:underline"
+              >
+                {t("auth.dontHaveAccount")}
+              </RouterLink>
+            </div>
+            <div>
+              <RouterLink
+                to="/user/forgot-password"
+                className="text-sm text-primary hover:underline"
+              >
+                {t("auth.forgotPassword")}
+              </RouterLink>
+            </div>
+          </div>
+        </form>
       </Card>
     </SignInContainer>
   );

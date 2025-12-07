@@ -1,17 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Container,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  Stack,
-  Button,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
-import { ShoppingCart as ShoppingCartIcon } from "@mui/icons-material";
+import { ShoppingCart, Loader2 } from "lucide-react";
 
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { selectIsAuthenticated } from "@/features/auth/authSlice";
@@ -19,6 +8,9 @@ import { selectLocalCartItems } from "./cartSlice";
 import { useMergeCartMutation } from "./cartApi";
 import { clearLocalCart } from "./cartSlice";
 import { formatCartItemsForMerge } from "./cartUtils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function MergeCartPage() {
   const navigate = useNavigate();
@@ -60,93 +52,99 @@ export default function MergeCartPage() {
   // Show loading while checking authentication
   if (!isAuthenticated) {
     return (
-      <Container sx={{ py: 4 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
     );
   }
 
   // Show loading while checking local cart
   if (localCartItems.length === 0) {
     return (
-      <Container sx={{ py: 4 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container sx={{ py: 4 }}>
-      <Box sx={{ maxWidth: 600, mx: "auto" }}>
-        <Card variant="outlined">
-          <CardContent sx={{ p: 4 }}>
-            <Stack spacing={3} alignItems="center" textAlign="center">
-              <ShoppingCartIcon sx={{ fontSize: 80, color: "primary.main" }} />
+    <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-2xl mx-auto">
+        <Card>
+          <CardContent className="p-8">
+            <div className="flex flex-col gap-6 items-center text-center">
+              <ShoppingCart
+                className="h-20 w-20 text-primary"
+              />
 
-              <Typography variant="h4" component="h1" gutterBottom>
+              <h1 className="text-3xl font-semibold">
                 Merge Your Cart
-              </Typography>
+              </h1>
 
-              <Typography variant="body1" color="text.secondary">
+              <p className="text-base text-muted-foreground">
                 You have items in your cart from before you logged in. Would you
                 like to merge them with your account's cart?
-              </Typography>
+              </p>
 
-              <Box sx={{ width: "100%", py: 2 }}>
-                <Typography
-                  variant="subtitle1"
-                  color="text.secondary"
-                  gutterBottom
-                >
+              <div className="w-full py-4">
+                <p className="text-sm font-medium text-muted-foreground mb-2">
                   Items in your local cart:
-                </Typography>
-                <Typography variant="h6" color="primary">
+                </p>
+                <p className="text-lg font-semibold text-primary">
                   {localCartItems.length}{" "}
                   {localCartItems.length === 1 ? "item" : "items"}
-                </Typography>
-              </Box>
+                </p>
+              </div>
 
               {error && (
-                <Alert severity="error" sx={{ width: "100%" }}>
-                  Failed to merge cart. Please try again.
+                <Alert className="w-full border-destructive bg-destructive/10 text-destructive">
+                  <AlertDescription>
+                    Failed to merge cart. Please try again.
+                  </AlertDescription>
                 </Alert>
               )}
 
-              <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+              <div className="flex flex-row gap-4 w-full">
                 <Button
-                  variant="outlined"
+                  variant="outline"
                   onClick={handleKeepServerCart}
                   disabled={isLoading}
-                  sx={{ flex: 1 }}
+                  className="flex-1"
                 >
                   Keep Server Cart
                 </Button>
                 <Button
-                  variant="contained"
+                  variant="default"
                   onClick={handleMerge}
                   disabled={isLoading}
-                  sx={{ flex: 1 }}
-                  startIcon={isLoading ? <CircularProgress size={20} /> : null}
+                  className="flex-1"
                 >
-                  {isLoading ? "Merging..." : "Merge Cart"}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Merging...
+                    </>
+                  ) : (
+                    "Merge Cart"
+                  )}
                 </Button>
-              </Stack>
+              </div>
 
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              <p className="text-sm text-muted-foreground mt-4">
                 <strong>Merge:</strong> Add your local cart items to your
                 account's cart
                 <br />
                 <strong>Keep Server Cart:</strong> Discard local items and keep
                 only your account's cart
-              </Typography>
-            </Stack>
+              </p>
+            </div>
           </CardContent>
         </Card>
-      </Box>
-    </Container>
+      </div>
+    </div>
   );
 }

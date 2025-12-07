@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { UserCircle } from "lucide-react";
 import { useAppSelector } from "@/app/hooks";
@@ -89,4 +88,3 @@ export default function UserMenu() {
     </DropdownMenu>
   );
 }
-

@@ -1,21 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardHeader from "@mui/material/CardHeader";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-// import Grid from "@mui/material/Grid";
-import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
+import { Loader2 } from "lucide-react";
 
 import { useAppSelector } from "@/app/hooks";
 import { selectCurrentUser } from "@/features/auth/authSlice";
@@ -26,6 +11,11 @@ import {
   useLogoutMutation,
 } from "./authApi";
 import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 interface ProfileFormFields extends HTMLFormControlsCollection {
   name: HTMLInputElement;
@@ -115,184 +105,202 @@ export const ProfilePage = () => {
 
   if (isLoadingUser) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center p-16">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   if (!displayUser) {
-    return <Alert severity="error">{t("auth.unableToLoadProfile")}</Alert>;
+    return (
+      <div className="max-w-3xl mx-auto p-6">
+        <Alert className="border-destructive/30 bg-destructive/10 text-destructive">
+          <AlertDescription>{t("auth.unableToLoadProfile")}</AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        {t("auth.userProfile")}
-      </Typography>
+    <div className="max-w-3xl mx-auto p-6">
+      <h1 className="text-3xl font-semibold mb-6">{t("auth.userProfile")}</h1>
 
       {/* Profile Information Card */}
-      <Card sx={{ mb: 3 }}>
-        <CardHeader title={t("auth.profileInformation")} />
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>{t("auth.profileInformation")}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Box
-            component="form"
-            onSubmit={handleProfileSubmit}
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-          >
+          <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
             {profileSuccess && (
-              <Alert severity="success">{t("auth.profileUpdated")}</Alert>
-            )}
-            {profileError && (
-              <Alert severity="error">
-                {"data" in profileError &&
-                profileError.data &&
-                typeof profileError.data === "object" &&
-                "message" in profileError.data
-                  ? (profileError.data.message as string)
-                  : t("auth.errorUpdatingProfile")}
+              <Alert className="border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400">
+                <AlertDescription>{t("auth.profileUpdated")}</AlertDescription>
               </Alert>
             )}
-            <Box>
-              {/* <Grid container spacing={2}> */}
-              {/* <Grid size={{ xs: 12, sm: 6 }}> */}
-              <TextField
+            {profileError && (
+              <Alert className="border-destructive/30 bg-destructive/10 text-destructive">
+                <AlertDescription>
+                  {"data" in profileError &&
+                  profileError.data &&
+                  typeof profileError.data === "object" &&
+                  "message" in profileError.data
+                    ? (profileError.data.message as string)
+                    : t("auth.errorUpdatingProfile")}
+                </AlertDescription>
+              </Alert>
+            )}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="name" className="text-sm font-medium">
+                {t("auth.fullName")}
+              </label>
+              <Input
                 name="name"
-                label={t("auth.fullName")}
+                id="name"
                 defaultValue={displayUser.name}
-                fullWidth
                 required
                 disabled={isUpdatingProfile}
               />
-              {/* </Grid> */}
-              {/* <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  name="email"
-                  label="Email"
-                  type="email"
-                  defaultValue={displayUser.email}
-                  fullWidth
-                  required
-                  disabled={isUpdatingProfile}
-                />
-              </Grid> */}
-            </Box>
+            </div>
             <Button
               type="submit"
-              variant="contained"
               disabled={isUpdatingProfile}
-              startIcon={
-                isUpdatingProfile ? <CircularProgress size={20} /> : null
-              }
-              sx={{ alignSelf: "flex-start" }}
+              className="self-start"
             >
+              {isUpdatingProfile && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
               {isUpdatingProfile
                 ? t("auth.updatingProfile")
                 : t("auth.updateProfile")}
             </Button>
-          </Box>
+          </form>
         </CardContent>
       </Card>
 
       {/* Language Preferences Card */}
-      <Card sx={{ mb: 3 }}>
-        <CardHeader title={t("common.language")} />
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>{t("common.language")}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <FormControl fullWidth>
-            <FormLabel>{t("common.language")}</FormLabel>
-            <Select
+          <div className="flex flex-col gap-2">
+            <label htmlFor="language" className="text-sm font-medium">
+              {t("common.language")}
+            </label>
+            <select
+              id="language"
               value={i18n.language}
               onChange={(e) => i18n.changeLanguage(e.target.value)}
-              displayEmpty
+              className={cn(
+                "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "disabled:cursor-not-allowed disabled:opacity-50"
+              )}
             >
-              <MenuItem value="en">{t("common.english")}</MenuItem>
-              <MenuItem value="ru">{t("common.russian")}</MenuItem>
-            </Select>
-          </FormControl>
+              <option value="en">{t("common.english")}</option>
+              <option value="ru">{t("common.russian")}</option>
+            </select>
+          </div>
         </CardContent>
       </Card>
 
       {/* Change Password Card */}
-      <Card sx={{ mb: 3 }}>
-        <CardHeader title={t("auth.changePassword")} />
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>{t("auth.changePassword")}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Box
-            component="form"
-            onSubmit={handlePasswordSubmit}
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-          >
+          <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
             {passwordSuccess && (
-              <Alert severity="success">{t("auth.passwordUpdated")}</Alert>
-            )}
-            {passwordError && (
-              <Alert severity="error">
-                {"data" in passwordError &&
-                passwordError.data &&
-                typeof passwordError.data === "object" &&
-                "message" in passwordError.data
-                  ? (passwordError.data.message as string)
-                  : t("auth.errorUpdatingPassword")}
+              <Alert className="border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400">
+                <AlertDescription>{t("auth.passwordUpdated")}</AlertDescription>
               </Alert>
             )}
-            <TextField
-              name="current_password"
-              label={t("common.currentPassword")}
-              type="password"
-              fullWidth
-              required
-              disabled={isUpdatingPassword}
-            />
-            <TextField
-              name="new_password"
-              label={t("common.newPassword")}
-              type="password"
-              fullWidth
-              required
-              disabled={isUpdatingPassword}
-            />
-            <TextField
-              name="new_password_confirmation"
-              label={t("common.confirmPassword")}
-              type="password"
-              fullWidth
-              required
-              disabled={isUpdatingPassword}
-            />
+            {passwordError && (
+              <Alert className="border-destructive/30 bg-destructive/10 text-destructive">
+                <AlertDescription>
+                  {"data" in passwordError &&
+                  passwordError.data &&
+                  typeof passwordError.data === "object" &&
+                  "message" in passwordError.data
+                    ? (passwordError.data.message as string)
+                    : t("auth.errorUpdatingPassword")}
+                </AlertDescription>
+              </Alert>
+            )}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="current_password" className="text-sm font-medium">
+                {t("common.currentPassword")}
+              </label>
+              <Input
+                name="current_password"
+                id="current_password"
+                type="password"
+                required
+                disabled={isUpdatingPassword}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="new_password" className="text-sm font-medium">
+                {t("common.newPassword")}
+              </label>
+              <Input
+                name="new_password"
+                id="new_password"
+                type="password"
+                required
+                disabled={isUpdatingPassword}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="new_password_confirmation"
+                className="text-sm font-medium"
+              >
+                {t("common.confirmPassword")}
+              </label>
+              <Input
+                name="new_password_confirmation"
+                id="new_password_confirmation"
+                type="password"
+                required
+                disabled={isUpdatingPassword}
+              />
+            </div>
             <Button
               type="submit"
-              variant="contained"
               disabled={isUpdatingPassword}
-              startIcon={
-                isUpdatingPassword ? <CircularProgress size={20} /> : null
-              }
-              sx={{ alignSelf: "flex-start" }}
+              className="self-start"
             >
+              {isUpdatingPassword && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
               {isUpdatingPassword
                 ? t("auth.updatingPassword")
                 : t("auth.updatePassword")}
             </Button>
-          </Box>
+          </form>
         </CardContent>
       </Card>
 
       {/* Logout Section */}
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
+          <h2 className="text-lg font-semibold mb-4">
             {t("auth.accountActions")}
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
+          </h2>
+          <hr className="border-border mb-4" />
           <Button
-            variant="outlined"
-            color="error"
+            variant="outline"
             onClick={handleLogout}
             disabled={isLoggingOut}
-            startIcon={isLoggingOut ? <CircularProgress size={20} /> : null}
+            className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
           >
+            {isLoggingOut && <Loader2 className="h-4 w-4 animate-spin" />}
             {isLoggingOut ? t("auth.loggingOut") : t("common.logout")}
           </Button>
         </CardContent>
       </Card>
-    </Box>
+    </div>
   );
 };
