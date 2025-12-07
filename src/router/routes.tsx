@@ -9,6 +9,7 @@ import { Frontpage } from "@/features/frontpage/Frontpage";
 import DefaultLayout from "@/theme/layouts/DefaultLayout";
 import CategoryPage from "@/features/category/CategoryPage";
 import ProductPage from "@/features/product/ProductPage";
+import BrandPage from "@/features/brand/BrandPage";
 import CartPage from "@/features/cart/CartPage";
 import MergeCartPage from "@/features/cart/MergeCartPage";
 // import { categoryPreloader } from "@/features/category/categoryPreloader";
@@ -43,6 +44,11 @@ export const router = createBrowserRouter([
         //loader: categoryPreloader,
       },
       {
+        path: "brands/:brandSlug",
+        element: <BrandPage />,
+        handle: { breadcrumb: "dynamic" },
+      },
+      {
         path: "cart",
         element: <CartPage />,
         handle: { breadcrumb: "breadcrumb.cart" },
@@ -60,22 +66,18 @@ export const router = createBrowserRouter([
       {
         path: "user/login",
         element: <LoginPage />,
-        handle: { breadcrumb: "breadcrumb.login" },
       },
       {
         path: "user/register",
         element: <RegisterPage />,
-        handle: { breadcrumb: "breadcrumb.register" },
       },
       {
         path: "user/forgot-password",
         element: <ForgotPasswordPage />,
-        handle: { breadcrumb: "breadcrumb.forgotPassword" },
       },
       {
         path: "user/reset-password",
         element: <ResetPasswordPage />,
-        handle: { breadcrumb: "breadcrumb.resetPassword" },
       },
     ],
   },
