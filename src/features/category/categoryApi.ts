@@ -15,6 +15,12 @@ export interface Category extends CategoryMinimal {
   updatedAt: string;
 }
 
+export interface FilterOption {
+  value: string;
+  displayValue: string;
+  count: number;
+}
+
 export interface Filter {
   id: number;
   name: string;
@@ -28,7 +34,7 @@ export interface Filter {
     | "single checkbox";
   filterWeight: number;
   options: unknown | null;
-  filterOptions?: unknown | null;
+  filterOptions?: FilterOption[] | null;
   min?: number;
   max?: number;
 }

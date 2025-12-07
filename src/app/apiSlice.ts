@@ -4,8 +4,9 @@ import type {
   FetchBaseQueryError,
   FetchBaseQueryMeta,
 } from "@reduxjs/toolkit/query";
-import type { Product } from "@/features/product/productApi";
+import type { Product, Brand } from "@/features/product/productApi";
 import type { Category, Filter } from "@/features/category/categoryApi";
+import type { FilterValue } from "@/features/category/filtersSlice";
 import {
   upsertCategories,
   upsertCategory,
@@ -86,6 +87,36 @@ function flattenCategoryTree(categories: Category[]): Category[] {
   return result;
 }
 
+// Add filters into query params
+function appendFiltersToParams(
+  filters: { [filterId: string]: FilterValue },
+  params: URLSearchParams
+) {
+  Object.entries(filters).forEach(([filterId, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      if (Array.isArray(value)) {
+        // Checkboxes: array of values
+        if (value.length > 0) {
+          value.forEach((v) => {
+            params.append(`filters[${filterId}]`, String(v));
+          });
+        }
+      } else if (
+        typeof value === "object" &&
+        "min" in value &&
+        "max" in value
+      ) {
+        // Range: object with min/max
+        params.append(`filters[${filterId}][min]`, String(value.min));
+        params.append(`filters[${filterId}][max]`, String(value.max));
+      } else if (typeof value === "string") {
+        // Text/Select: single string value
+        params.append(`filters[${filterId}]`, value);
+      }
+    }
+  });
+}
+
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
@@ -133,16 +164,51 @@ export const apiSlice = createApi({
   endpoints: (builder) => ({
     getProducts: builder.query<
       PaginatedResponse<Product>,
-      { page?: number; perPage?: number; category_id?: string | number }
+      {
+        page?: number;
+        perPage?: number;
+        category_id?: string | number;
+        filters?: { [filterId: string]: FilterValue };
+        brand_id?: string | number | string[] | null;
+      }
     >({
-      query: ({ page = 1, perPage = 12, category_id } = {}) => ({
-        url: `/products`,
-        params: {
-          page,
-          per_page: perPage,
-          ...(category_id && { category_id }),
-        },
-      }),
+      query: ({
+        page = 1,
+        perPage = 12,
+        category_id,
+        filters,
+        brand_id,
+      } = {}) => {
+        const queryParams = new URLSearchParams();
+
+        // Add page and per_page
+        queryParams.append("page", String(page));
+        queryParams.append("per_page", String(perPage));
+
+        // Add category_id if present
+        if (category_id) {
+          queryParams.append("category_id", String(category_id));
+        }
+
+        if (filters && Object.keys(filters).length > 0) {
+          appendFiltersToParams(filters, queryParams);
+        }
+
+        // Add brand_id with proper array handling
+        if (brand_id) {
+          if (Array.isArray(brand_id)) {
+            brand_id.forEach((id) => {
+              queryParams.append("brand_id[]", String(id));
+            });
+          } else {
+            queryParams.append("brand_id", String(brand_id));
+          }
+        }
+
+        return {
+          url: `/products?${queryParams.toString()}`,
+        };
+      },
       //transformResponse: (response: unknown/* , meta */): PaginatedResponse<Product> => response,
       providesTags: (result) =>
         result
@@ -259,6 +325,15 @@ export const apiSlice = createApi({
             ]
           : [{ type: "Category" as const, id: `filters-${id}` }],
     }),
+    getBrandBySlug: builder.query<Brand, string>({
+      query: (slug) => ({
+        url: `/brands/${slug}`,
+      }),
+      transformResponse: (response: unknown): Brand =>
+        (response as SingleDataResponse<Brand>).data,
+      providesTags: (result) =>
+        result ? [{ type: "Product" as const, id: `brand-${result.id}` }] : [],
+    }),
   }),
 });
 
@@ -268,5 +343,6 @@ export const {
   useGetCategoriesTreeQuery,
   useGetCategoryQuery,
   useGetCategoryFiltersQuery,
+  useGetBrandBySlugQuery,
   util: { prefetch },
 } = apiSlice;

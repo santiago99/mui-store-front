@@ -1,12 +1,9 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import Skeleton from "@mui/material/Skeleton";
-import Alert from "@mui/material/Alert";
-import Paper from "@mui/material/Paper";
 import { useGetCategoryFiltersQuery } from "@/app/apiSlice";
 import type { Filter } from "@/features/category/categoryApi";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import FilterTextField from "./FilterTextField";
 import FilterRange from "./FilterRange";
 import FilterSelect from "./FilterSelect";
@@ -49,22 +46,20 @@ export default function FilterSidebar({ categoryId }: FilterSidebarProps) {
 
   if (isLoading) {
     return (
-      <Box sx={{ p: 2 }}>
-        <Skeleton variant="text" width="60%" height={24} />
-        <Skeleton variant="rectangular" width="100%" height={40} sx={{ mt: 2 }} />
-        <Skeleton variant="text" width="60%" height={24} sx={{ mt: 2 }} />
-        <Skeleton variant="rectangular" width="100%" height={40} sx={{ mt: 2 }} />
-      </Box>
+      <div className="p-2">
+        <Skeleton className="h-6 w-[60%]" />
+        <Skeleton className="h-10 w-full mt-2" />
+        <Skeleton className="h-6 w-[60%] mt-2" />
+        <Skeleton className="h-10 w-full mt-2" />
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <Box sx={{ p: 2 }}>
-        <Alert severity="error" size="small">
-          Failed to load filters
-        </Alert>
-      </Box>
+      <div className="p-2">
+        <Alert className="text-sm">Failed to load filters</Alert>
+      </div>
     );
   }
 
@@ -78,26 +73,16 @@ export default function FilterSidebar({ categoryId }: FilterSidebarProps) {
   );
 
   return (
-    <Box>
-      <Divider sx={{ my: 2 }} />
-      <Box sx={{ px: 2, pb: 1 }}>
-        <Typography variant="h6" component="div">
-          Filters
-        </Typography>
-      </Box>
-      <Paper
-        variant="outlined"
-        sx={{
-          mx: 2,
-          mb: 2,
-          p: 2,
-          maxHeight: "calc(100vh - 400px)",
-          overflow: "auto",
-        }}
-      >
-        {sortedFilters.map(renderFilter)}
-      </Paper>
-    </Box>
+    <div>
+      <Separator className="my-2" />
+      <div className="px-2 pb-1">
+        <h6 className="text-lg font-semibold">Filters</h6>
+      </div>
+      <Card className="mb-2 rounded-none border-0">
+        <CardContent className="p-2">
+          {sortedFilters.map(renderFilter)}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
-
