@@ -123,7 +123,7 @@ export const ProfilePage = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-semibold mb-6">{t("auth.userProfile")}</h1>
+      <h1 className="mb-6">{t("auth.userProfile")}</h1>
 
       {/* Profile Information Card */}
       <Card className="mb-6">
@@ -286,9 +286,7 @@ export const ProfilePage = () => {
       {/* Logout Section */}
       <Card>
         <CardContent>
-          <h2 className="text-lg font-semibold mb-4">
-            {t("auth.accountActions")}
-          </h2>
+          <h2 className="mb-4">{t("auth.accountActions")}</h2>
           <hr className="border-border mb-4" />
           <Button
             variant="outline"

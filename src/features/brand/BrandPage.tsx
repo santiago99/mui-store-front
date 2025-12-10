@@ -64,7 +64,7 @@ export default function BrandPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold">
+        <h2>
           {isLoading ? (
             <div className="h-6 w-full rounded bg-muted animate-pulse" />
           ) : (

@@ -102,7 +102,7 @@ export const ResetPasswordPage = () => {
   if (!token || !email) {
     return (
       <SignInContainer>
-        <Card className="flex flex-col self-center w-full p-8 gap-4 mx-auto max-w-[450px] shadow-lg">
+        <Card className="flex flex-col self-center w-full p-8 gap-4 mx-auto max-w-[450px]">
           <Alert className="border-destructive/30 bg-destructive/10 text-destructive">
             <AlertDescription>
               Invalid or missing reset token. Please request a new password

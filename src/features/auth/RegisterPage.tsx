@@ -106,8 +106,11 @@ export const RegisterPage = () => {
 
   return (
     <SignInContainer>
-      <Card className="flex flex-col self-center w-full p-8 gap-4 mx-auto max-w-[450px] shadow-lg">
-        <h1 className="w-full text-4xl font-semibold" style={{ fontSize: "clamp(2rem, 10vw, 2.15rem)" }}>
+      <Card className="flex flex-col self-center w-full p-8 gap-4 mx-auto max-w-[450px]">
+        <h1
+          className="w-full text-4xl font-semibold"
+          style={{ fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
+        >
           {t("auth.signUp")}
         </h1>
         <form
@@ -160,7 +163,10 @@ export const RegisterPage = () => {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="password_confirmation" className="text-sm font-medium">
+            <label
+              htmlFor="password_confirmation"
+              className="text-sm font-medium"
+            >
               {t("common.confirmPassword")}
             </label>
             <Input
@@ -173,11 +179,7 @@ export const RegisterPage = () => {
               disabled={isLoading}
             />
           </div>
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             {isLoading ? t("auth.creatingAccount") : t("auth.signUp")}
           </Button>

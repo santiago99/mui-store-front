@@ -36,177 +36,171 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="container mx-auto py-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Product Image */}
-        <div>
-          <Card className="overflow-hidden">
-            <img
-              src={
-                product?.imageUrl && product.imageUrl.length > 0
-                  ? product.imageUrl
-                  : "/assets/no-photo.jpeg"
-              }
-              alt={product?.title || "Product image"}
-              className="w-full h-[300px] md:h-[500px] object-cover"
-            />
-          </Card>
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-12">
+        {/* Product Image - No border */}
+        <div className="flex items-start">
+          <div className="w-full">
+            {isLoading ? (
+              <div className="w-full h-[400px] md:h-[600px] bg-muted animate-pulse" />
+            ) : (
+              <img
+                src={
+                  product?.imageUrl && product.imageUrl.length > 0
+                    ? product.imageUrl
+                    : "/assets/no-photo.jpeg"
+                }
+                alt={product?.title || "Product image"}
+                className="w-full h-[400px] md:h-[600px] object-contain"
+              />
+            )}
+          </div>
         </div>
 
         {/* Product Details and Add to Cart */}
-        <div>
-          <div className="flex flex-col gap-6">
-            {/* Product Title */}
-            <div>
+        <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
+            {/* Product Title Section */}
+            <div className="space-y-3">
               {/* Brand Name */}
               {isLoading ? (
-                <div className="h-4 w-24 rounded bg-muted animate-pulse mb-2" />
+                <div className="h-5 w-32 bg-muted animate-pulse" />
               ) : product?.brand ? (
                 <RouterLink
                   to={`/brands/${product.brand.slug}`}
-                  className="text-sm text-muted-foreground font-medium hover:text-primary hover:underline block mb-2"
+                  className="font-brand text-sm text-muted-foreground hover:text-primary hover:underline transition-colors inline-block"
                 >
                   {product.brand.name}
                 </RouterLink>
               ) : null}
-              <h1 className="text-3xl font-semibold mb-4">
+
+              {/* Product Title */}
+              <h1 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight">
                 {isLoading ? (
-                  <div className="h-12 w-full rounded bg-muted animate-pulse" />
+                  <div className="h-10 w-full bg-muted animate-pulse" />
                 ) : (
                   product?.title
                 )}
               </h1>
-
-              {/* Category Chip */}
-              {/* {product?.category && (
-                <Chip
-                  label={product.category.name}
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                  sx={{ mb: 2 }}
-                />
-              )} */}
             </div>
 
-            {/* Price */}
-            <div>
-              <h2 className="text-4xl font-bold text-primary">
+            {/* Price Section */}
+            <div className="pt-2">
+              <p className="font-price text-3xl md:text-4xl text-primary font-semibold">
                 {isLoading ? (
-                  <div className="h-12 w-48 rounded bg-muted animate-pulse" />
+                  <div className="h-16 w-56 bg-muted animate-pulse" />
                 ) : product?.price ? (
                   formatPriceRub(product.price)
                 ) : (
                   ""
                 )}
-              </h2>
+              </p>
             </div>
 
-            <hr className="border-border" />
-
-            {/* Add to Cart Form */}
-            <AddToCartForm product={product} isLoading={isLoading} />
+            <hr className="border-border my-2" />
+            {/* Add to Cart Form - With border */}
+            <div className="pt-2">
+              <AddToCartForm product={product} isLoading={isLoading} />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Product Description and Properties - Full Width */}
-      <div className="mt-8">
-        <div className="flex flex-col gap-6">
-          {/* Product Description */}
-          {(!isLoading && product?.description) || isLoading ? (
-            <Card className="border">
-              <CardContent className="pt-6">
-                <h3 className="text-xl font-semibold mb-4">
-                  {t("common.description")}
-                </h3>
-                <div className="text-base text-muted-foreground">
-                  {isLoading ? (
-                    <div className="h-16 w-full rounded bg-muted animate-pulse" />
-                  ) : (
-                    product?.description || ""
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {/* Additional Information */}
-          <Card className="border">
-            <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-4">
-                {t("product.additionalInformation")}
-              </h3>
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">SKU:</span>
-                  <span className="text-sm">
-                    {isLoading ? (
-                      <div className="h-4 w-16 rounded bg-muted animate-pulse" />
-                    ) : (
-                      product?.sku || "—"
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Brand:</span>
-                  <span className="text-sm">
-                    {isLoading ? (
-                      <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-                    ) : product?.brand ? (
-                      <RouterLink
-                        to={`/brands/${product.brand.slug}`}
-                        className="text-primary hover:underline"
-                      >
-                        {product.brand.name}
-                      </RouterLink>
-                    ) : (
-                      "—"
-                    )}
-                  </span>
-                </div>
-                {product?.fields && product.fields.length > 0 && (
-                  <>
-                    <hr className="border-border" />
-                    {product.fields.map((field) => (
-                      <div
-                        key={field.id}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-sm text-muted-foreground">
-                          {field.name}:
-                        </span>
-                        <span className="text-sm">
-                          {field.options?.prefix && (
-                            <span>{field.options.prefix}</span>
-                          )}
-                          {field.type === "integer"
-                            ? typeof field.value === "number"
-                              ? field.value
-                              : parseInt(field.value as string, 10)
-                            : String(field.value)}
-                          {field.options?.suffix && (
-                            <span>{field.options.suffix}</span>
-                          )}
-                        </span>
-                      </div>
-                    ))}
-                  </>
+      <div className="space-y-6">
+        {/* Product Description - With border */}
+        {(!isLoading && product?.description) || isLoading ? (
+          <Card className="border-none">
+            <CardContent className="p-6 md:p-8">
+              <h2 className="text-2xl font-semibold mb-6">
+                {t("common.description")}
+              </h2>
+              <div className="text-base text-muted-foreground leading-relaxed">
+                {isLoading ? (
+                  <div className="space-y-3">
+                    <div className="h-4 w-full bg-muted animate-pulse" />
+                    <div className="h-4 w-full bg-muted animate-pulse" />
+                    <div className="h-4 w-3/4 bg-muted animate-pulse" />
+                  </div>
+                ) : (
+                  <div className="whitespace-pre-wrap">
+                    {product?.description || ""}
+                  </div>
                 )}
-                {/* <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Category:</span>
-                  <span className="text-sm">
-                    {isLoading ? (
-                      <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-                    ) : (
-                      product?.category?.name || "N/A"
-                    )}
-                  </span>
-                </div> */}
               </div>
             </CardContent>
           </Card>
-        </div>
+        ) : null}
+
+        {/* Additional Information */}
+        <Card className="border-none">
+          <CardContent className="p-6 md:p-8">
+            <h2 className="text-2xl font-semibold mb-6">
+              {t("product.additionalInformation")}
+            </h2>
+            <div className="flex flex-col">
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm font-medium text-muted-foreground">
+                  SKU:
+                </span>
+                <span className="text-sm font-medium">
+                  {isLoading ? (
+                    <div className="h-4 w-20 rounded bg-muted animate-pulse" />
+                  ) : (
+                    product?.sku || "—"
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Brand:
+                </span>
+                <span className="text-sm font-medium">
+                  {isLoading ? (
+                    <div className="h-4 w-28 rounded bg-muted animate-pulse" />
+                  ) : product?.brand ? (
+                    <RouterLink
+                      to={`/brands/${product.brand.slug}`}
+                      className="text-primary hover:underline transition-colors"
+                    >
+                      {product.brand.name}
+                    </RouterLink>
+                  ) : (
+                    "—"
+                  )}
+                </span>
+              </div>
+              {product?.fields && product.fields.length > 0 && (
+                <>
+                  <hr className="border-border my-2" />
+                  {product.fields.map((field) => (
+                    <div
+                      key={field.id}
+                      className="flex justify-between items-center py-1"
+                    >
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {field.name}:
+                      </span>
+                      <span className="text-sm font-medium">
+                        {field.options?.prefix && (
+                          <span>{field.options.prefix}</span>
+                        )}
+                        {field.type === "integer"
+                          ? typeof field.value === "number"
+                            ? field.value
+                            : parseInt(field.value as string, 10)
+                          : String(field.value)}
+                        {field.options?.suffix && (
+                          <span>{field.options.suffix}</span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

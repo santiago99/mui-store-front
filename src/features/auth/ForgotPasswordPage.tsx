@@ -72,7 +72,7 @@ export const ForgotPasswordPage = () => {
 
   return (
     <SignInContainer>
-      <Card className="flex flex-col self-center w-full p-8 gap-4 mx-auto max-w-[450px] shadow-lg">
+      <Card className="flex flex-col self-center w-full p-8 gap-4 mx-auto max-w-[450px]">
         <h1
           className="w-full text-4xl font-semibold"
           style={{ fontSize: "clamp(2rem, 10vw, 2.15rem)" }}

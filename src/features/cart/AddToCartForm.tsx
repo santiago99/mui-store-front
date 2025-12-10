@@ -40,48 +40,48 @@ export function AddToCartForm({
   };
 
   return (
-    <Card className="border">
-      <CardContent className="pt-6">
-        <h3 className="text-xl font-semibold mb-4">{t("product.addToCart")}</h3>
+    <>
+      <Card className="border-none">
+        <CardContent className="p-0">
+          <div className="flex flex-col gap-5">
+            {/* Quantity Input */}
+            <div>
+              <label className="text-sm font-medium mb-2 block text-foreground">
+                {t("common.quantity")}
+              </label>
+              <Input
+                type="number"
+                value={quantity}
+                onChange={handleQuantityChange}
+                min={1}
+                className="w-32"
+                disabled={isLoading}
+              />
+            </div>
 
-        <div className="flex flex-col gap-4 mt-4">
-          {/* Quantity Input */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">
-              {t("common.quantity")}
-            </label>
-            <Input
-              type="number"
-              value={quantity}
-              onChange={handleQuantityChange}
-              min={1}
-              className="w-32"
-              disabled={isLoading}
-            />
+            {/* Add to Cart Button */}
+            <Button
+              variant="default"
+              size="lg"
+              className="w-full py-6 text-base font-semibold"
+              onClick={handleAddToCart}
+              disabled={isLoading || isAddingToCart || !product}
+            >
+              {isAddingToCart ? t("product.adding") : t("product.addToCart")}
+            </Button>
+
+            {/* Buy Now Button */}
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full py-6 text-base font-semibold"
+              disabled={isLoading || !product}
+            >
+              {t("product.buyNow")}
+            </Button>
           </div>
-
-          {/* Add to Cart Button */}
-          <Button
-            variant="default"
-            size="lg"
-            className="w-full py-6"
-            onClick={handleAddToCart}
-            disabled={isLoading || isAddingToCart || !product}
-          >
-            {isAddingToCart ? t("product.adding") : t("product.addToCart")}
-          </Button>
-
-          {/* Buy Now Button */}
-          <Button
-            variant="outline"
-            size="lg"
-            className="w-full py-6"
-            disabled={isLoading || !product}
-          >
-            {t("product.buyNow")}
-          </Button>
-        </div>
-      </CardContent>
+        </CardContent>
+      </Card>
 
       {/* Success Toast */}
       <Toast
@@ -91,6 +91,6 @@ export function AddToCartForm({
       >
         {t("product.productAddedToCart")}
       </Toast>
-    </Card>
+    </>
   );
 }

@@ -76,7 +76,7 @@ export default function CartPage() {
               {t("cart.continueShopping")}
             </RouterLink>
           </Button>
-          <h1 className="text-3xl font-semibold">{t("cart.shoppingCart")}</h1>
+          <h1>{t("cart.shoppingCart")}</h1>
         </div>
 
         {items.length > 0 && (
@@ -92,7 +92,7 @@ export default function CartPage() {
             className="h-30 w-30 text-muted-foreground mb-6 mx-auto"
             style={{ fontSize: 120 }}
           />
-          <h2 className="text-2xl text-muted-foreground mb-4">
+          <h2 className="text-muted-foreground mb-4">
             {t("cart.yourCartIsEmpty")}
           </h2>
           <p className="text-base text-muted-foreground mb-6">
@@ -128,10 +128,8 @@ export default function CartPage() {
 
                       {/* Product Details */}
                       <div className="sm:col-span-6 md:col-span-5 xl:col-span-6">
-                        <h3 className="text-lg font-semibold mb-2">
-                          {item.product.title}
-                        </h3>
-                        <p className="text-base text-primary font-bold">
+                        <h3 className="mb-2">{item.product.title}</h3>
+                        <p className="font-price text-lg text-primary">
                           {formatPriceRub(item.product.price)}
                         </p>
                       </div>
@@ -214,9 +212,7 @@ export default function CartPage() {
           <div className="lg:col-span-4">
             <Card className="sticky top-5">
               <CardContent className="p-6">
-                <h2 className="text-lg font-semibold mb-4">
-                  {t("cart.orderSummary")}
-                </h2>
+                <h2 className="mb-4">{t("cart.orderSummary")}</h2>
 
                 <div className="border-t my-4" />
 
@@ -237,12 +233,10 @@ export default function CartPage() {
                 <div className="border-t my-4" />
 
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold">
-                    {t("common.total")}:
-                  </h3>
-                  <h3 className="text-lg text-primary font-bold">
+                  <h3>{t("common.total")}:</h3>
+                  <p className="font-price text-lg text-primary">
                     {formatPriceRub(total)}
-                  </h3>
+                  </p>
                 </div>
 
                 <Button

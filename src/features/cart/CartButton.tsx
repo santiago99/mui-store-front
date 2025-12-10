@@ -28,7 +28,7 @@ export default function CartButton() {
       <ShoppingCart className="h-5 w-5" />
       {count > 0 && (
         <Badge
-          variant="secondary"
+          variant="default"
           className="absolute -right-1 -top-1 h-5 min-w-[20px] rounded-full p-0 flex items-center justify-center text-xs px-1"
         >
           {count > 99 ? "99+" : count}

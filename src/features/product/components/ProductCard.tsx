@@ -1,11 +1,11 @@
 import { Link as RouterLink } from "react-router-dom";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+//import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+//import { cn } from "@/lib/utils";
 import type { Product } from "@/features/product/productApi";
-import { useCart } from "@/features/cart/useCart";
-import { useTranslation } from "react-i18next";
+//import { useCart } from "@/features/cart/useCart";
+//import { useTranslation } from "react-i18next";
 
 function formatPriceRub(price: number): string {
   return new Intl.NumberFormat("ru-RU", {
@@ -20,11 +20,11 @@ export interface ProductCardProps {
 }
 
 export default function ProductCard(props: ProductCardProps) {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const { product } = props;
-  const { addItem, isAddingToCart } = useCart();
+  // const { addItem, isAddingToCart } = useCart();
 
-  const handleAddToCart = async (event: React.MouseEvent) => {
+  /* const handleAddToCart = async (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     try {
@@ -32,7 +32,7 @@ export default function ProductCard(props: ProductCardProps) {
     } catch (error) {
       console.error("Failed to add to cart:", error);
     }
-  };
+  }; */
 
   const imageSrc =
     product.imageUrl && product.imageUrl.length > 0
@@ -40,34 +40,34 @@ export default function ProductCard(props: ProductCardProps) {
       : "/assets/no-photo.jpeg";
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden">
+    <Card className="flex h-full flex-col overflow-hidden border-none">
       <RouterLink
         to={`/product/${product.id}`}
         className="flex flex-1 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <div className="relative h-52 w-full overflow-hidden bg-muted">
+        <div className="relative h-52 w-full overflow-hidden">
           <img
             src={imageSrc}
             alt={product.title}
-            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+            className="h-full w-full object-contain transition-transform duration-300 hover:scale-105"
             loading="lazy"
           />
         </div>
-        <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex flex-1 flex-col px-4 py-2">
           {product.brand && (
-            <p className="text-xs text-muted-foreground font-medium">
+            <p className="font-brand text-muted-foreground">
               {product.brand.name}
             </p>
           )}
           <p className="truncate text-base font-medium text-foreground">
             {product.title}
           </p>
-          <p className="text-lg font-semibold text-foreground">
+          <p className="font-price text-xl text-foreground">
             {formatPriceRub(product.price)}
           </p>
         </div>
       </RouterLink>
-      <div className="flex items-center justify-between border-t px-4 py-3">
+      {/* <div className="flex items-center justify-between px-2 py-3">
         <RouterLink
           to={`/product/${product.id}`}
           className={cn(
@@ -85,7 +85,7 @@ export default function ProductCard(props: ProductCardProps) {
         >
           {isAddingToCart ? t("product.adding") : t("product.addToCartSmall")}
         </Button>
-      </div>
+      </div> */}
     </Card>
   );
 }
