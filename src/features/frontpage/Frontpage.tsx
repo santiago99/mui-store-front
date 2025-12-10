@@ -1,15 +1,18 @@
-import ProductList from "@/features/product/components/ProductList";
-import { useTranslation } from "react-i18next";
+import CollectionsCarousel from "@/features/product/components/CollectionsCarousel";
 
 export const Frontpage = () => {
-  const { t } = useTranslation();
-
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold">{t("category.catalog")}</h2>
+      <div className="space-y-12">
+        <section>
+          <h2 className="mb-6 text-2xl font-semibold">New products</h2>
+          <CollectionsCarousel collectionSlug="new" />
+        </section>
+        <section>
+          <h2 className="mb-6 text-2xl font-semibold">Featured products</h2>
+          <CollectionsCarousel collectionSlug="featured" />
+        </section>
       </div>
-      <ProductList pageSize={12} />
     </div>
   );
 };

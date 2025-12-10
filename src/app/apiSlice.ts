@@ -334,6 +334,27 @@ export const apiSlice = createApi({
       providesTags: (result) =>
         result ? [{ type: "Product" as const, id: `brand-${result.id}` }] : [],
     }),
+    getCollection: builder.query<Product[], string>({
+      query: (collectionSlug) => ({
+        url: `/collections/${collectionSlug}`,
+      }),
+      transformResponse: (response: unknown): Product[] =>
+        (response as ListDataResponse<Product>).data,
+      providesTags: (result, _error, collectionSlug) =>
+        result
+          ? [
+              ...result.map((p) => ({
+                type: "Product" as const,
+                id: p.id,
+              })),
+              { type: "Product" as const, id: "LIST" },
+              { type: "Product" as const, id: `collection-${collectionSlug}` },
+            ]
+          : [
+              { type: "Product" as const, id: "LIST" },
+              { type: "Product" as const, id: `collection-${collectionSlug}` },
+            ],
+    }),
   }),
 });
 
@@ -344,5 +365,6 @@ export const {
   useGetCategoryQuery,
   useGetCategoryFiltersQuery,
   useGetBrandBySlugQuery,
+  useGetCollectionQuery,
   util: { prefetch },
 } = apiSlice;
