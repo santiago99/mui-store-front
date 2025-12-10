@@ -7,11 +7,9 @@ export default function Sidebar() {
   const navigation = useAppSelector((state) => state.navigation);
 
   const currentCategoryId = navigation.data.categoryId as number | null;
-  // Hide sidebar on all routes except category and product pages
-  if (
-    !["category", "product"].includes(navigation.route) ||
-    !currentCategoryId
-  ) {
+  // Show sidebar on category page only
+  //!["category", "product"].includes(navigation.route)
+  if (navigation.route !== "category" || !currentCategoryId) {
     return null;
   }
 
