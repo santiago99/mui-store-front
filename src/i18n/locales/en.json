@@ -129,6 +129,13 @@
     "resetPassword": "Reset Password",
     "profile": "Profile"
   },
+  "frontpage": {
+    "heroTitle": "Discover Premium Electronics",
+    "heroSubtitle": "Explore our curated selection of the latest technology and accessories",
+    "heroImageAlt": "Premium Electronics Store",
+    "newProducts": "New products",
+    "featuredProducts": "Featured products"
+  },
   "errors": {
     "failedToLoadProducts": "Failed to load products"
   }
