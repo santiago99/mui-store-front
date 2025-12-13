@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useGetProductsQuery } from "@/app/apiSlice";
 import { type Product } from "@/features/product/productApi";
 import { useAppSelector } from "@/app/hooks";
-import { selectFilters, selectBrandId } from "@/features/category/filtersSlice";
+import { selectFilters } from "@/features/category/filtersSlice";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
 
@@ -75,13 +75,9 @@ function PaginationControls({
 
 export default function ProductList(props: ProductListProps) {
   const { t } = useTranslation();
-  const { pageSize = 12, categoryId, brandId: brandIdProp } = props;
+  const { pageSize = 12, categoryId, brandId: brandId } = props;
   const [page, setPage] = React.useState(1);
   const filters = useAppSelector(selectFilters);
-  const brandIdFromRedux = useAppSelector(selectBrandId);
-
-  // Use brandId from props if provided, otherwise fall back to Redux state
-  const brandId = brandIdProp ?? brandIdFromRedux;
 
   // Reset page to 1 when filters or category change
   React.useEffect(() => {
