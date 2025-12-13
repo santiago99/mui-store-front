@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import type { Filter } from "@/features/category/categoryApi";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
@@ -103,6 +104,17 @@ export default function FilterRange({ filter }: FilterRangeProps) {
     setLocalMax(value);
   };
 
+  const handleSliderChange = (values: number[]) => {
+    const [min, max] = values;
+    isUserChangeRef.current = true;
+    setLocalMin(min.toString());
+    setLocalMax(max.toString());
+  };
+
+  // Convert local state to numbers for real-time slider updates
+  const sliderMin = localMin === "" ? defaultMin : Number(localMin);
+  const sliderMax = localMax === "" ? defaultMax : Number(localMax);
+
   return (
     <div className="mb-2">
       <Label className="text-sm font-medium mb-2 block">{filter.name}</Label>
@@ -141,6 +153,16 @@ export default function FilterRange({ filter }: FilterRangeProps) {
             max={defaultMax}
           />
         </div>
+      </div>
+      <div className="mt-3">
+        <Slider
+          value={[sliderMin, sliderMax]}
+          min={defaultMin}
+          max={defaultMax}
+          step={1}
+          onValueChange={handleSliderChange}
+          className="w-full"
+        />
       </div>
     </div>
   );
