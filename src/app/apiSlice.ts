@@ -98,7 +98,7 @@ function appendFiltersToParams(
         // Checkboxes: array of values
         if (value.length > 0) {
           value.forEach((v) => {
-            params.append(`filters[${filterId}]`, String(v));
+            params.append(`filters[${filterId}][]`, String(v));
           });
         }
       } else if (
