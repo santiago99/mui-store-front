@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import type { Filter } from "@/features/category/categoryApi";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { setFilter, selectFilterValue } from "@/features/category/filtersSlice";
 import { useDebounce } from "@/hooks/useDebounce";
+import FilterLabel from "./FilterLabel";
 
 interface FilterTextFieldProps {
   filter: Filter;
@@ -55,7 +55,7 @@ export default function FilterTextField({ filter }: FilterTextFieldProps) {
 
   return (
     <div className="mb-2">
-      <Label className="text-sm font-medium mb-2 block">{filter.name}</Label>
+      <FilterLabel filter={filter} />
       <Input
         className="w-full h-9 mt-1"
         placeholder={filter.name}

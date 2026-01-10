@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import type { Filter } from "@/features/category/categoryApi";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { setFilter, selectFilterValue } from "@/features/category/filtersSlice";
+import FilterLabel from "./FilterLabel";
 
 interface FilterCheckboxesProps {
   filter: Filter;
@@ -32,7 +33,7 @@ export default function FilterCheckboxes({ filter }: FilterCheckboxesProps) {
 
   return (
     <div className="mb-2">
-      <Label className="text-sm font-medium mb-2 block">{filter.name}</Label>
+      <FilterLabel filter={filter} />
       <div className="mt-1">
         {hasOptions ? (
           <div className="space-y-2">

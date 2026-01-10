@@ -10,6 +10,7 @@ import {
   selectFilterValue,
 } from "@/features/category/filtersSlice";
 import { useDebounce } from "@/hooks/useDebounce";
+import FilterLabel from "./FilterLabel";
 
 interface FilterRangeProps {
   filter: Filter;
@@ -117,8 +118,8 @@ export default function FilterRange({ filter }: FilterRangeProps) {
 
   return (
     <div className="mb-2">
-      <Label className="text-sm font-medium mb-2 block">{filter.name}</Label>
-      <div className="grid grid-cols-2 gap-2 mt-1">
+      <FilterLabel filter={filter} className="text-sm font-medium block" />
+      <div className="grid grid-cols-2 gap-2">
         <div>
           <Label
             htmlFor={`${filter.id}-min`}

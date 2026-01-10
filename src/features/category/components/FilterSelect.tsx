@@ -5,10 +5,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import type { Filter } from "@/features/category/categoryApi";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { setFilter, selectFilterValue } from "@/features/category/filtersSlice";
+import FilterLabel from "./FilterLabel";
 
 interface FilterSelectProps {
   filter: Filter;
@@ -31,7 +31,7 @@ export default function FilterSelect({ filter }: FilterSelectProps) {
 
   return (
     <div className="mb-2">
-      <Label className="text-sm font-medium mb-2 block">{filter.name}</Label>
+      <FilterLabel filter={filter} />
       <Select
         disabled={!hasOptions}
         value={currentValue}
