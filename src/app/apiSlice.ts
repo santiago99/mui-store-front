@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createSelector } from "@reduxjs/toolkit";
 import type {
   QueryReturnValue,
   FetchBaseQueryError,
@@ -29,11 +30,23 @@ export interface PaginatedResponse<T> {
   meta: PaginatedResponseMeta;
 }
 
+export interface PaginatedResponseWithFilters<T> extends PaginatedResponse<T> {
+  filters: { [filterId: string]: Filter };
+}
+
 export interface SingleDataResponse<T> {
   data: T;
 }
 export interface ListDataResponse<T> {
   data: T[];
+}
+
+export interface GetProductsParams {
+  page?: number;
+  perPage?: number;
+  category_id?: string | number;
+  filters?: { [filterId: string]: FilterValue };
+  brand_id?: string | number | string[] | null;
 }
 
 // Helper function to get cookies
@@ -163,14 +176,8 @@ export const apiSlice = createApi({
   tagTypes: ["Product", "Category", "User", "Cart"],
   endpoints: (builder) => ({
     getProducts: builder.query<
-      PaginatedResponse<Product>,
-      {
-        page?: number;
-        perPage?: number;
-        category_id?: string | number;
-        filters?: { [filterId: string]: FilterValue };
-        brand_id?: string | number | string[] | null;
-      }
+      PaginatedResponseWithFilters<Product>,
+      GetProductsParams
     >({
       query: ({
         page = 1,
@@ -308,23 +315,6 @@ export const apiSlice = createApi({
             ]
           : [{ type: "Category" as const, id: "TREE" }],
     }),
-    getCategoryFilters: builder.query<Filter[], number>({
-      query: (id) => ({
-        url: `/categories/${id}/filters`,
-      }),
-      transformResponse: (response: unknown): Filter[] =>
-        (response as ListDataResponse<Filter>).data,
-      providesTags: (result, _error, id) =>
-        result
-          ? [
-              ...result.map((f) => ({
-                type: "Category" as const,
-                id: `filters-${id}-${f.id}`,
-              })),
-              { type: "Category" as const, id: `filters-${id}` },
-            ]
-          : [{ type: "Category" as const, id: `filters-${id}` }],
-    }),
     getBrandBySlug: builder.query<Brand, string>({
       query: (slug) => ({
         url: `/brands/${slug}`,
@@ -363,8 +353,29 @@ export const {
   useGetProductQuery,
   useGetCategoriesTreeQuery,
   useGetCategoryQuery,
-  useGetCategoryFiltersQuery,
   useGetBrandBySlugQuery,
   useGetCollectionQuery,
   util: { prefetch },
 } = apiSlice;
+
+// RTK Query selectors for getProducts
+const selectProductsResult = (args: GetProductsParams) =>
+  apiSlice.endpoints.getProducts.select(args);
+
+export const selectProducts = (args: GetProductsParams) =>
+  createSelector(
+    selectProductsResult(args),
+    (result) => result?.data?.data ?? []
+  );
+
+export const selectFilters = (args: GetProductsParams) =>
+  createSelector(
+    selectProductsResult(args),
+    (result) => result?.data?.filters ?? {}
+  );
+
+export const selectFiltersArray = (args: GetProductsParams) =>
+  createSelector(selectFilters(args), (filters) => {
+    const filtersArray = Object.values(filters);
+    return filtersArray.sort((a, b) => a.filterWeight - b.filterWeight);
+  });

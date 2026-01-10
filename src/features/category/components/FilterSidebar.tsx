@@ -1,9 +1,11 @@
-import { useGetCategoryFiltersQuery } from "@/app/apiSlice";
+import { useGetProductsQuery, selectFiltersArray } from "@/app/apiSlice";
 import type { Filter } from "@/features/category/categoryApi";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAppSelector } from "@/app/hooks";
+import { selectFilters } from "@/features/category/filtersSlice";
 import FilterTextField from "./FilterTextField";
 import FilterRange from "./FilterRange";
 import FilterSelect from "./FilterSelect";
@@ -17,32 +19,43 @@ interface FilterSidebarProps {
 function renderFilter(filter: Filter) {
   switch (filter.filterType) {
     case "textfield":
-      return <FilterTextField key={filter.id} filter={filter} />;
+      return <FilterTextField filter={filter} />;
     case "range":
-      return <FilterRange key={filter.id} filter={filter} />;
+      return <FilterRange filter={filter} />;
     case "select":
-      return <FilterSelect key={filter.id} filter={filter} />;
+      return <FilterSelect filter={filter} />;
     case "checkboxes":
-      return <FilterCheckboxes key={filter.id} filter={filter} />;
+      return <FilterCheckboxes filter={filter} />;
     case "single checkbox":
-      return <FilterSingleCheckbox key={filter.id} filter={filter} />;
+      return <FilterSingleCheckbox filter={filter} />;
     default:
       return null;
   }
 }
 
 export default function FilterSidebar({ categoryId }: FilterSidebarProps) {
-  const {
-    data: filters,
-    isLoading,
-    isError,
-  } = useGetCategoryFiltersQuery(categoryId!, {
-    skip: !categoryId,
-  });
+  const currentFilters = useAppSelector(selectFilters);
 
   if (!categoryId) {
     return null;
   }
+
+  // Construct query args matching ProductList
+  const queryArgs = {
+    category_id: categoryId,
+    filters:
+      Object.keys(currentFilters).length > 0 ? currentFilters : undefined,
+    page: 1,
+    perPage: 12,
+  };
+
+  // Use useGetProductsQuery to get loading/error states
+  const { isLoading, isError } = useGetProductsQuery(queryArgs, {
+    skip: !categoryId,
+  });
+
+  // Use selector to get filters from query cache
+  const filters = useAppSelector(selectFiltersArray(queryArgs));
 
   if (isLoading) {
     return (
@@ -67,11 +80,6 @@ export default function FilterSidebar({ categoryId }: FilterSidebarProps) {
     return null;
   }
 
-  // Sort filters by filterWeight (ascending)
-  const sortedFilters = [...filters].sort(
-    (a, b) => a.filterWeight - b.filterWeight
-  );
-
   return (
     <div>
       <Separator className="my-2" />
@@ -80,7 +88,11 @@ export default function FilterSidebar({ categoryId }: FilterSidebarProps) {
       </div>
       <Card className="mb-2 rounded-none border-0">
         <CardContent className="p-2">
-          {sortedFilters.map(renderFilter)}
+          {filters.map((filter) => (
+            <div key={filter.id} className="mb-6 last:mb-0">
+              {renderFilter(filter)}
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>
