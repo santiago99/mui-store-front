@@ -44,7 +44,7 @@ export interface ListDataResponse<T> {
 export interface GetProductsParams {
   page?: number;
   perPage?: number;
-  category_id?: string | number;
+  category_id?: string | number | null;
   filters?: { [filterId: string]: FilterValue };
   brand_id?: string | number | string[] | null;
 }

@@ -36,10 +36,6 @@ function renderFilter(filter: Filter) {
 export default function FilterSidebar({ categoryId }: FilterSidebarProps) {
   const currentFilters = useAppSelector(selectFilters);
 
-  if (!categoryId) {
-    return null;
-  }
-
   // Construct query args matching ProductList
   const queryArgs = {
     category_id: categoryId,
@@ -56,6 +52,10 @@ export default function FilterSidebar({ categoryId }: FilterSidebarProps) {
 
   // Use selector to get filters from query cache
   const filters = useAppSelector(selectFiltersArray(queryArgs));
+
+  if (!categoryId) {
+    return null;
+  }
 
   if (isLoading) {
     return (
